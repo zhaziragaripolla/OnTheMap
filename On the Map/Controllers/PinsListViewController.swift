@@ -10,14 +10,11 @@ import UIKit
 
 class PinsListViewController: UIViewController, LocationsViewModelDelegate {
     func reloadData() {
-        
         tableView.reloadData()
-        
     }
     
     let tableView = UITableView(frame: .zero)
     var viewModel: LocationsViewModel!
-    
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,6 +22,12 @@ class PinsListViewController: UIViewController, LocationsViewModelDelegate {
         viewModel.delegate = self
         view.backgroundColor = .white
         title = "Pins"
+        
+        setupTableView()
+        setupBarItems()
+    }
+    
+    fileprivate func setupTableView() {
         view.addSubview(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -36,16 +39,26 @@ class PinsListViewController: UIViewController, LocationsViewModelDelegate {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
-        
+    }
+    
+    fileprivate func setupBarItems() {
         let addItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(didTapAddButton(_:)))
-        let reloadItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: nil)
-        let logoutItem = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: nil)
+        let reloadItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(didTapReloadButton(_:)))
+        let logoutItem = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(didTapLogoutButton(_:)))
         navigationItem.leftBarButtonItems = [logoutItem]
         navigationItem.rightBarButtonItems = [addItem, reloadItem]
     }
     
     @objc func didTapAddButton(_ sender: UIBarButtonItem) {
         
+    }
+    
+    @objc func didTapReloadButton(_ sender: UIBarButtonItem) {
+        
+    }
+    
+    @objc func didTapLogoutButton(_ sender: UIBarButtonItem) {
+        dismiss(animated: true, completion: nil)
     }
     
 

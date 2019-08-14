@@ -18,6 +18,13 @@ class MapViewController: UIViewController, MKMapViewDelegate, LocationsViewModel
         super.viewDidLoad()
 
         view.backgroundColor = .white
+        viewModel.delegate = self
+        
+        setupMapView()
+        setupBarItems()
+    }
+    
+    fileprivate func setupMapView() {
         view.addSubview(mapView)
         mapView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -26,17 +33,16 @@ class MapViewController: UIViewController, MKMapViewDelegate, LocationsViewModel
             mapView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             mapView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
             ])
-        // Do any additional setup after loading the view.
         
         mapView.delegate = self
-        viewModel.delegate = self
-        
+    }
+    
+    fileprivate func setupBarItems() {
         let addItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(didTapAddButton(_:)))
-        let reloadItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: nil)
+        let reloadItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(didTapReloadButton(_:)))
         let logoutItem = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(didTapLogoutButton(_:)))
         navigationItem.leftBarButtonItems = [logoutItem]
         navigationItem.rightBarButtonItems = [addItem, reloadItem]
-        
     }
     
     func reloadData() {
@@ -49,6 +55,10 @@ class MapViewController: UIViewController, MKMapViewDelegate, LocationsViewModel
     
     @objc func didTapLogoutButton(_ sender: UIBarButtonItem) {
         dismiss(animated: true, completion: nil)
+    }
+    
+    @objc func didTapReloadButton(_ sender: UIBarButtonItem) {
+        
     }
     
     
