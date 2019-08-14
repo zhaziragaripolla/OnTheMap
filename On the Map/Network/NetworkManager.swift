@@ -20,8 +20,9 @@ enum Result<T: Codable> {
 }
 
 class NetworkManager {
-    let requestBuilder = RequestBuilder()
-    
+//    static let shared = NetworkManager()
+//
+//    private init(){}
     private var currentTask: URLSessionDataTask?
     
     
@@ -36,10 +37,16 @@ class NetworkManager {
                 print(httpResponse.statusCode)
                 switch httpResponse.statusCode {
                 case 400...451:
-                    callback(.failure(error: NetworkError.clientError))
+                    DispatchQueue.main.async {
+                        callback(.failure(error: NetworkError.clientError))
+                    }
+                    
 
                 case 500...511:
-                    callback(.failure(error: NetworkError.serverError))
+                    DispatchQueue.main.async {
+                        callback(.failure(error: NetworkError.serverError))
+                    }
+                    
                 default:
                     break
                 }
@@ -60,10 +67,15 @@ class NetworkManager {
                 jsonDecoder.keyDecodingStrategy = .convertFromSnakeCase
                 jsonDecoder.dateDecodingStrategy = .formatted(Formatter.iso8601)
                 let response = try jsonDecoder.decode(T.self, from: unwrappedData)
-            
-                callback(.success(response: response))
+                DispatchQueue.main.async {
+                    callback(.success(response: response))
+                }
+                
             } catch {
-                callback(.failure(error: error))
+                DispatchQueue.main.async {
+                    callback(.failure(error: error))
+                }
+                
             }
         
             
