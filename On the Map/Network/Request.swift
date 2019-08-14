@@ -18,24 +18,3 @@ enum HTTPMethod: String {
     case PUT
     case DELETE
 }
-
-struct Request {
-    let path: String
-    let method: HTTPMethod?
-    let headers: HTTPHeaders?
-    let body: HTTPBodyParameters?
-    let query: HTTPQueryParameters?
-    
-    init(path: String,
-         method: HTTPMethod? = nil,
-         headers: HTTPHeaders? = nil,
-         body: HTTPBodyParameters? = nil,
-         query: HTTPQueryParameters? = nil) {
-        
-        self.path = path
-        self.method = method
-        self.headers = headers
-        self.body = body
-        self.query = query
-    }
-}

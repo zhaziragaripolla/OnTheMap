@@ -71,7 +71,7 @@ class LoginViewController: UIViewController {
     
     @objc func didTapLoginButton(_ sender: UIButton) {
         let request = requestProvider.createSession(login: "zhumabayeva97@gmail.com", password: "Tools003")
-        print(request.method)
+
         networkManager.makeRequest(request, responseType: UdacityResponse.self, isSkippingChars: true, callback: { result in
             switch result {
             case .success(let response):

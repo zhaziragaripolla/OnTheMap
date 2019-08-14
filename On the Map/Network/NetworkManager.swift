@@ -25,10 +25,9 @@ class NetworkManager {
     private var currentTask: URLSessionDataTask?
     
     
-    func makeRequest<T: Codable>(_ request: Request, responseType: T.Type, isSkippingChars: Bool, callback: @escaping (Result<T>) -> ()) {
-        let urlRequest = requestBuilder.buildRequest(request)
+    func makeRequest<T: Codable>(_ request: URLRequest, responseType: T.Type, isSkippingChars: Bool, callback: @escaping (Result<T>) -> ()) {
         
-        let dataTask = URLSession.shared.dataTask(with: urlRequest) { [weak self] (data, response, error) in
+        let dataTask = URLSession.shared.dataTask(with: request) { [weak self] (data, response, error) in
             if let error = error {
                 callback(.failure(error: error))
             }

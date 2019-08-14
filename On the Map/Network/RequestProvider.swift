@@ -9,17 +9,18 @@
 import Foundation
 
 class RequestProvider {
+    let requestBuilder = RequestBuilder()
 //    var baseHeaders: HTTPHeaders {
 //        return [
 //            "Authorization": "Client-ID \(Credentials.clientID)"
 //        ]
 //    }
 
-    func getStudentLocations() -> Request {
-        return Request(path: "/StudentLocation", method: .GET, headers: nil, body: nil, query: nil)
+    func getStudentLocations() -> URLRequest {
+        return requestBuilder.buildRequest(path: "/StudentLocation", method: .GET, headers: nil, body: nil, query: nil)
     }
     
-    func createSession(login: String, password: String)-> Request {
+    func createSession(login: String, password: String)-> URLRequest{
         let headers = [
             "Content-Type": "application/json",
             "Accept": "application/json"
@@ -27,7 +28,7 @@ class RequestProvider {
         let body: HTTPBodyParameters = [
             "udacity" : ["username": "\(login)", "password": "\(password)"]
         ]
-        return Request(path: "/session", method: .POST, headers: headers, body: body, query: nil)
+        return requestBuilder.buildRequest(path: "/session", method: .POST, headers: headers, body: body, query: nil)
     }
     
 //    func makeGetCollectionsRequest(page: Int) -> Request {

@@ -12,17 +12,20 @@ class RequestBuilder {
     
     let baseURL = "https://onthemap-api.udacity.com/v1"
  
-    func buildRequest(_ request: Request) -> URLRequest {
-        guard var url = URL(string: baseURL + request.path) else {
+    func buildRequest(path: String,
+                      method: HTTPMethod? = nil,
+                      headers: HTTPHeaders? = nil,
+                      body: HTTPBodyParameters? = nil,
+                      query: HTTPQueryParameters? = nil) -> URLRequest {
+        guard var url = URL(string: baseURL + path) else {
             fatalError("Failed to build URL")
         }
         
-        setQueryParameters(request.query, to: &url)
-        
+        setQueryParameters(query, to: &url)
         var urlRequest = URLRequest(url: url)
-        urlRequest.httpMethod = request.method.map { $0.rawValue }
-        setHeaders(request.headers, to: &urlRequest)
-        setBodyParameters(request.body, to: &urlRequest)
+        urlRequest.httpMethod = method.map { $0.rawValue }
+        setHeaders(headers, to: &urlRequest)
+        setBodyParameters(body, to: &urlRequest)
         return urlRequest
     }
     
@@ -33,8 +36,6 @@ class RequestBuilder {
             print(value, key)
             request.addValue(value, forHTTPHeaderField: key)
         }
-//        request.addValue("application/json", forHTTPHeaderField: "Accept")
-//        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
     }
     
     private func setBodyParameters(_ parameters: HTTPBodyParameters?, to request: inout URLRequest) {
@@ -45,8 +46,6 @@ class RequestBuilder {
                 return
         }
         request.httpBody = body
-
-//        request.httpBody = "{\"udacity\": {\"username\": \"zhumabayeva97@gmail.com\", \"password\": \"Tools003\"}}".data(using: .utf8)
     }
     
     private func setQueryParameters(_ parameters: HTTPQueryParameters?, to url: inout URL) {
