@@ -50,7 +50,7 @@ class PinsListViewController: UIViewController {
     }
     
     @objc func didTapAddButton(_ sender: UIBarButtonItem) {
-        navigationController?.pushViewController(NewLocationPostingViewController(), animated: true)
+        navigationController?.pushViewController(PostLocationViewController(), animated: true)
     }
     
     @objc func didTapReloadButton(_ sender: UIBarButtonItem) {

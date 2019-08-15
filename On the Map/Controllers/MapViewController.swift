@@ -50,7 +50,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     
     
     @objc func didTapAddButton(_ sender: UIBarButtonItem) {
-        navigationController?.pushViewController(NewLocationPostingViewController(), animated: true)
+        navigationController?.pushViewController(PostLocationViewController(), animated: true)
     }
     
     @objc func didTapLogoutButton(_ sender: UIBarButtonItem) {

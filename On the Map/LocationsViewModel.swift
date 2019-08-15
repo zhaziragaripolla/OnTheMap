@@ -84,13 +84,13 @@ class LocationsViewModel {
     func getUserData() {
         let request = requestProvider.getUserData()
 
-        networkManager.makeRequest(request, responseType: UserResponse.self, isSkippingChars: true) { [weak self] result in
+        networkManager.makeRequest(request, responseType: UserResponse.self, isSkippingChars: true) { result in
             switch result {
             case .success(let response):
                 User.firstName = response.firstName
                 User.lastName = response.lastName
                 User.location = response.location
-//                print(User.firstName, User.lastName, User.location)
+                print(User.firstName, User.lastName, User.location)
             case .failure(let error):
                 
                 print("user unfetched", error)
@@ -102,9 +102,9 @@ class LocationsViewModel {
     }
     
     func postNewLocation(location: String, mediaURL: String, latitude: Float, longtitude: Float) {
-        let request = requestProvider.postStudentLocation(location: location, mediaURL: mediaURL, latitude: latitude, longtitude: longtitude)
+        let request = requestProvider.postStudentLocation(location: location, mediaURL: mediaURL, latitude: latitude, longitude: longtitude)
 
-        networkManager.makeRequest(request, responseType: PostStudentLocationResponse.self, isSkippingChars: false) { [weak self] result in
+        networkManager.makeRequest(request, responseType: PostStudentLocationResponse.self, isSkippingChars: false) { result in
             switch result {
             case .success(let response):
                 print("New location is posted")

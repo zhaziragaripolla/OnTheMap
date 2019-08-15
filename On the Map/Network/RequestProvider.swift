@@ -30,7 +30,7 @@ class RequestProvider {
         return requestBuilder.buildRequest(path: "/users/" + Auth.accountKey, method: .GET, headers: nil, body: nil, query: nil)
     }
     
-    func postStudentLocation(location: String, mediaURL: String, latitude: Float, longtitude: Float)-> URLRequest {
+    func postStudentLocation(location: String, mediaURL: String, latitude: Float, longitude: Float)-> URLRequest {
         let headers = [
             "Accept": "application/json",
             "Content-Type": "application/json",
@@ -44,8 +44,8 @@ class RequestProvider {
             "lastName" : User.lastName,
             "mapString" : location,
             "mediaURL" : mediaURL,
-            "latitude" : 37.386052,
-            "longtitude" : -122.083851
+            "latitude" : latitude,
+            "longitude" : longitude
         ]
         return requestBuilder.buildRequest(path: "/StudentLocation", method: .POST, headers: headers, body: body, query: nil)
     }

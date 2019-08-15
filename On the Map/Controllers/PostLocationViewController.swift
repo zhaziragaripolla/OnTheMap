@@ -1,5 +1,5 @@
 //
-//  NewLocationPostingViewController.swift
+//  PostLocationViewController.swift
 //  On the Map
 //
 //  Created by Zhazira Garipolla on 8/14/19.
@@ -10,7 +10,7 @@ import UIKit
 import CoreLocation
 import MapKit
 
-class NewLocationPostingViewController: UIViewController, MKMapViewDelegate {
+class PostLocationViewController: UIViewController, MKMapViewDelegate {
     
     let mapView = MKMapView(frame: .zero)
     var latitude: CLLocationDegrees?
@@ -19,7 +19,7 @@ class NewLocationPostingViewController: UIViewController, MKMapViewDelegate {
     var locationTextField: UITextField = {
         let textField = UITextField()
         textField.font = UIFont.systemFont(ofSize: 16)
-        textField.text = "Calgary"
+        textField.text = "Astana"
         textField.layer.borderWidth = 1.0
         textField.layer.cornerRadius = 5
         return textField
