@@ -10,11 +10,6 @@ import Foundation
 
 class RequestProvider {
     let requestBuilder = RequestBuilder()
-//    var baseHeaders: HTTPHeaders {
-//        return [
-//            "Authorization": "Client-ID \(Credentials.clientID)"
-//        ]
-//    }
 
     func getStudentLocations() -> URLRequest {
         return requestBuilder.buildRequest(path: "/StudentLocation", method: .GET, headers: nil, body: nil, query: nil)
@@ -37,7 +32,10 @@ class RequestProvider {
     
     func postStudentLocation(location: String, mediaURL: String, latitude: Float, longtitude: Float)-> URLRequest {
         let headers = [
-            "Content-Type": "application/json"
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "X-Parse-Application-Id": "QrX47CA9cyuGewLdsL7o5Eb8iug6Em8ye0dnAbIr",
+            "X-Parse-REST-API-Key" : "QuWThTdiRmTux3YaDseUSEpUKo7aBYM737yKd4gY"
         ]
 
         let body: HTTPBodyParameters = [
@@ -46,12 +44,10 @@ class RequestProvider {
             "lastName" : User.lastName,
             "mapString" : location,
             "mediaURL" : mediaURL,
-            "latitude" : latitude,
-            "longtitude" : longtitude
+            "latitude" : 37.386052,
+            "longtitude" : -122.083851
         ]
-        
-        return requestBuilder.buildRequest(path: "/StudentLocation", method: .POST, headers: headers, body: nil, query: nil)
+        return requestBuilder.buildRequest(path: "/StudentLocation", method: .POST, headers: headers, body: body, query: nil)
     }
-    
 
 }

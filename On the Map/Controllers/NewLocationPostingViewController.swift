@@ -19,7 +19,7 @@ class NewLocationPostingViewController: UIViewController, MKMapViewDelegate {
     var locationTextField: UITextField = {
         let textField = UITextField()
         textField.font = UIFont.systemFont(ofSize: 16)
-        textField.text = "New York"
+        textField.text = "Calgary"
         textField.layer.borderWidth = 1.0
         textField.layer.cornerRadius = 5
         return textField

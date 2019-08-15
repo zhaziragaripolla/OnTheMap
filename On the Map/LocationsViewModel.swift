@@ -55,6 +55,7 @@ class LocationsViewModel {
             case .success(let response):
                 Auth.accountKey = response.account.key
                 Auth.sessdionId = response.session.id
+                print(Auth.accountKey)
                 self?.sessionDelegate?.createdSuccessfully()
             case .failure(let error):
                 self?.errorDelegate?.showError(message: error.localizedDescription)
@@ -82,13 +83,14 @@ class LocationsViewModel {
     
     func getUserData() {
         let request = requestProvider.getUserData()
-//        print(request.url)
+
         networkManager.makeRequest(request, responseType: UserResponse.self, isSkippingChars: true) { [weak self] result in
             switch result {
             case .success(let response):
                 User.firstName = response.firstName
                 User.lastName = response.lastName
                 User.location = response.location
+//                print(User.firstName, User.lastName, User.location)
             case .failure(let error):
                 
                 print("user unfetched", error)
@@ -101,7 +103,19 @@ class LocationsViewModel {
     
     func postNewLocation(location: String, mediaURL: String, latitude: Float, longtitude: Float) {
         let request = requestProvider.postStudentLocation(location: location, mediaURL: mediaURL, latitude: latitude, longtitude: longtitude)
-        
+
+        networkManager.makeRequest(request, responseType: PostStudentLocationResponse.self, isSkippingChars: false) { [weak self] result in
+            switch result {
+            case .success(let response):
+                print("New location is posted")
+             
+            case .failure(let error):
+                print("New location posting is unsuccessfull", error)
+                break
+                // TODO: delegate VC to show alert
+            }
+            
+        }
     }
     
     func deleteSession() {

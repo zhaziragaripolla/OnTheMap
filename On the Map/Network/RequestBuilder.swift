@@ -46,6 +46,8 @@ class RequestBuilder {
                 return
         }
         request.httpBody = body
+
+//        print(String(data: request.httpBody!, encoding: .utf8))
     }
     
     private func setQueryParameters(_ parameters: HTTPQueryParameters?, to url: inout URL) {

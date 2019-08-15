@@ -57,7 +57,9 @@ class NetworkManager {
                 return
             }
             
+            
             do {
+                print(String(data: unwrappedData, encoding: .utf8))
                 // skip first 4 characters for decoding Udacity API's responses
                 if isSkippingChars {
                     unwrappedData = unwrappedData.subdata(in: 5..<unwrappedData.count)
