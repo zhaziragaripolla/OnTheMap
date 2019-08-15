@@ -9,16 +9,17 @@
 import UIKit
 import MapKit
 
-class MapViewController: UIViewController, MKMapViewDelegate, LocationsViewModelDelegate {
+class MapViewController: UIViewController, MKMapViewDelegate {
    
-    let mapView = MKMapView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
-    var viewModel: LocationsViewModel!
+    let mapView = MKMapView(frame: .zero)
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         view.backgroundColor = .white
-        viewModel.delegate = self
+        LocationsViewModel.shared.fetcherDelegate = self
+        LocationsViewModel.shared.errorDelegate = self
+//        LocationsViewModel.shared.fetchLocations()
         
         setupMapView()
         setupBarItems()
@@ -43,27 +44,27 @@ class MapViewController: UIViewController, MKMapViewDelegate, LocationsViewModel
         let logoutItem = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(didTapLogoutButton(_:)))
         navigationItem.leftBarButtonItems = [logoutItem]
         navigationItem.rightBarButtonItems = [addItem, reloadItem]
+        self.tabBarController?.tabBar.isHidden = false
     }
     
-    func reloadData() {
-        setupPins()
-    }
+    
     
     @objc func didTapAddButton(_ sender: UIBarButtonItem) {
-        
+        navigationController?.pushViewController(NewLocationPostingViewController(), animated: true)
     }
     
     @objc func didTapLogoutButton(_ sender: UIBarButtonItem) {
         dismiss(animated: true, completion: nil)
+        LocationsViewModel.shared.deleteSession()
     }
     
     @objc func didTapReloadButton(_ sender: UIBarButtonItem) {
-        
+        LocationsViewModel.shared.fetchLocations()
     }
     
     
     func setupPins() {
-        let locations = viewModel.locations
+        let locations = LocationsViewModel.shared.locations
         var annotations = [MKPointAnnotation]()
 
         for item in locations {
@@ -75,7 +76,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, LocationsViewModel
 
             // The lat and long are used to create a CLLocationCoordinates2D instance.
             let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
-            print(coordinate)
+           
             let first = item.firstName
             let last = item.lastName
             let mediaURL = item.mapString
@@ -120,6 +121,19 @@ class MapViewController: UIViewController, MKMapViewDelegate, LocationsViewModel
                 app.open(URL(string: toOpen)!, options: [:], completionHandler: nil)
             }
         }
+    }
+}
+
+extension MapViewController: LocationsFetcherDelegate, ErrorHandlerDelegate {
+    func showError(message: String) {
+        let alertController = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        let action = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+        alertController.addAction(action)
+        self.present(alertController, animated: true, completion: nil)
+    }
+    
+    func fetchedSuccessfully() {
+        setupPins()
     }
 }
 

@@ -8,18 +8,17 @@
 
 import UIKit
 
-class PinsListViewController: UIViewController, LocationsViewModelDelegate {
-    func reloadData() {
-        tableView.reloadData()
-    }
-    
+class PinsListViewController: UIViewController {
+  
     let tableView = UITableView(frame: .zero)
-    var viewModel: LocationsViewModel!
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        viewModel.delegate = self
+        LocationsViewModel.shared.fetcherDelegate = self
+        LocationsViewModel.shared.errorDelegate = self
+//        LocationsViewModel.shared.fetchLocations()
+        
         view.backgroundColor = .white
         title = "Pins"
         
@@ -47,18 +46,20 @@ class PinsListViewController: UIViewController, LocationsViewModelDelegate {
         let logoutItem = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(didTapLogoutButton(_:)))
         navigationItem.leftBarButtonItems = [logoutItem]
         navigationItem.rightBarButtonItems = [addItem, reloadItem]
+        self.tabBarController?.tabBar.isHidden = false
     }
     
     @objc func didTapAddButton(_ sender: UIBarButtonItem) {
-        
+        navigationController?.pushViewController(NewLocationPostingViewController(), animated: true)
     }
     
     @objc func didTapReloadButton(_ sender: UIBarButtonItem) {
-        
+        LocationsViewModel.shared.fetchLocations()
     }
     
     @objc func didTapLogoutButton(_ sender: UIBarButtonItem) {
         dismiss(animated: true, completion: nil)
+        LocationsViewModel.shared.deleteSession()
     }
     
 
@@ -66,13 +67,29 @@ class PinsListViewController: UIViewController, LocationsViewModelDelegate {
 
 extension PinsListViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.locations.count
+        return LocationsViewModel.shared.locations.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        let location = viewModel.locations[indexPath.row]
+        let location = LocationsViewModel.shared.locations[indexPath.row]
         cell.textLabel?.text = "\(location.firstName.description) \(location.lastName.description)"
         return cell
     }
 }
+
+extension PinsListViewController: LocationsFetcherDelegate, ErrorHandlerDelegate {
+    func showError(message: String) {
+        let alertController = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        let action = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+        alertController.addAction(action)
+        self.present(alertController, animated: true, completion: nil)
+    }
+    
+    func fetchedSuccessfully() {
+        tableView.reloadData()
+    }
+}
+
+
+
