@@ -37,7 +37,7 @@ class ParseClient {
             decoder.dateDecodingStrategy = .formatted(Formatter.iso8601)
             
             do {
-                
+//                print(String(data: unwrappedData, encoding: .utf8))
                 let response = try decoder.decode(T.self, from: unwrappedData)
                 DispatchQueue.main.async {
                     callback(.success(response: response))

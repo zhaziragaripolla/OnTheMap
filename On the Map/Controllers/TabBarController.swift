@@ -9,13 +9,16 @@
 import UIKit
 
 class TabBarController: UITabBarController {
+
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         setupTabs()
     }
     
     func setupTabs() {
-        
+       
         let mapVC = MapViewController()
         mapVC.tabBarItem = UITabBarItem(tabBarSystemItem: .favorites, tag: 1)
         

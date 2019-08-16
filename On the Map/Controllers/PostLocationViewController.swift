@@ -49,10 +49,15 @@ class PostLocationViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        setupView()
+    }
+    
+    fileprivate func setupView() {
         view.backgroundColor = .lightBlue
-//        self.tabBarController?.tabBar.isHidden = true
-        self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(didTapCancelButton(_:)))
+        //        self.tabBarController?.tabBar.isHidden = true
+        
         findButton.addTarget(self, action: #selector(didTapFindButton(_:)), for: .touchUpInside)
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(didTapCancelButton(_:)))
         
         let stackView = UIStackView(arrangedSubviews: [locationTextField, linkTextField, findButton])
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -68,6 +73,7 @@ class PostLocationViewController: UIViewController {
             stackView.heightAnchor.constraint(equalToConstant: 90)
             ])
     }
+    
     
     @objc func didTapFindButton(_ sender: UIButton) {
         
@@ -107,7 +113,6 @@ class PostLocationViewController: UIViewController {
                     LoadingOverlay.shared.hideOverlayView()
                     completion(true)
                 }
-                
             }
             
             if let error = error as? CLError {

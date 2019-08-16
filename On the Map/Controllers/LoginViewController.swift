@@ -9,8 +9,6 @@
 import UIKit
 
 class LoginViewController: UIViewController {
-    // TODO: add activity indicator
-    // TODO: show password as *
     
     lazy var logoImageView: UIImageView = {
         let imageView = UIImageView()
@@ -22,21 +20,21 @@ class LoginViewController: UIViewController {
     lazy var loginTextField: UITextField = {
         let textField = UITextField()
         textField.font = UIFont.systemFont(ofSize: 14)
-        textField.text = "insert login"
-        textField.backgroundColor = .white
+        textField.placeholder = "email"
         textField.layer.borderWidth = 1.0
         textField.layer.cornerRadius = 5
+        textField.delegate = self
         return textField
     }()
     
     lazy var passwordTextField: UITextField = {
         let textField = UITextField()
         textField.font = UIFont.systemFont(ofSize: 14)
-        textField.text = "insert password"
+        textField.placeholder = "password"
+        textField.isSecureTextEntry = true
         textField.layer.borderWidth = 1.0
-        textField.backgroundColor = .white
         textField.layer.cornerRadius = 5
-//        textField.textContentType = .password
+        textField.delegate = self
         return textField
     }()
     
@@ -52,19 +50,40 @@ class LoginViewController: UIViewController {
         return button
     }()
     
+    lazy var signUpLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Don't have an account?"
+        label.textAlignment = .center
+        return label
+    }()
+    
+    lazy var signUpButton: UIButton = {
+        let button = UIButton()
+        button.setTitleColor(.lightBlue, for: .normal)
+        button.setTitle("Sign Up", for: .normal)
+        return button
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        LocationsViewModel.shared.sessionDelegate = self
-        LocationsViewModel.shared.errorDelegate = self
-        view.backgroundColor = .white
-        loginButton.addTarget(self, action: #selector(didTapLoginButton(_:)), for: .touchUpInside)
+        LocationsViewModel.shared.taskDelegate = self
+        LocationsViewModel.shared.authenticationDelegate = self
         
+        view.backgroundColor = .white
+        
+        loginButton.addTarget(self, action: #selector(didTapLoginButton(_:)), for: .touchUpInside)
+        signUpButton.addTarget(self, action: #selector(didTapSignUpButton(_:)), for: .touchUpInside)
         layoutView()
+        
     }
 
     func layoutView() {
-        let stackView = UIStackView(arrangedSubviews: [logoImageView, loginTextField, passwordTextField, loginButton])
+    
+        let signUpStackView = UIStackView(arrangedSubviews: [signUpLabel, signUpButton])
+        signUpStackView.axis = .horizontal
+        
+        let stackView = UIStackView(arrangedSubviews: [logoImageView, loginTextField, passwordTextField, loginButton, signUpStackView])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.distribution = .fillEqually
         stackView.axis = .vertical
@@ -80,13 +99,27 @@ class LoginViewController: UIViewController {
     }
     
     @objc func didTapLoginButton(_ sender: UIButton) {
-        LocationsViewModel.shared.createSession()
+        guard let email = loginTextField.text, let password = passwordTextField.text else {
+            let alertController = UIAlertController(title: "Logging in", message: "Please fill in login or password", preferredStyle: .alert)
+            alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+            self.present(alertController, animated: true, completion: nil)
+            return
+        }
+        LocationsViewModel.shared.createSession(email: email, password: password)
         LoadingOverlay.shared.showOverlay(view: view)
+    }
+    
+    @objc func didTapSignUpButton(_ sender: UIButton) {
+        UIApplication.shared.open(URL(string: "https://auth.udacity.com/sign-up")!, options: [:], completionHandler: nil)
     }
 }
 
-extension LoginViewController: SessionCompletionDelegate, ErrorHandlerDelegate {
-    func createdSuccessfully() {
+extension LoginViewController: NetworkTaskCompletionDelegate, AuthenticationCompletionDelegate {
+    func completed() {
+        LocationsViewModel.shared.getUserData()
+    }
+    
+    func taskCompleted() {
         LoadingOverlay.shared.hideOverlayView()
         present(TabBarController(), animated: true)
     }
@@ -99,4 +132,11 @@ extension LoginViewController: SessionCompletionDelegate, ErrorHandlerDelegate {
         self.present(alertController, animated: true, completion: nil)
     }
     
+}
+
+extension LoginViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
 }

@@ -13,3 +13,6 @@ struct PostStudentLocationResponse: Codable {
     let objectId: String
 }
 
+struct PutStudentLocationResponse: Codable {
+    let updatedAt: Date
+}

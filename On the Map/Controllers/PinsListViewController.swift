@@ -21,8 +21,7 @@ class PinsListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        LocationsViewModel.shared.fetcherDelegate = self
-        LocationsViewModel.shared.errorDelegate = self
+        LocationsViewModel.shared.delegate = self
         
         view.backgroundColor = .white
         title = "Pins"
@@ -63,8 +62,8 @@ class PinsListViewController: UIViewController {
     }
     
     @objc func didTapLogoutButton(_ sender: UIBarButtonItem) {
-        dismiss(animated: true, completion: nil)
         LocationsViewModel.shared.deleteSession()
+        dismiss(animated: true, completion: nil)
     }
     
 
@@ -83,7 +82,12 @@ extension PinsListViewController: UITableViewDelegate, UITableViewDataSource {
     }
 }
 
-extension PinsListViewController: LocationsFetcherDelegate, ErrorHandlerDelegate {
+extension PinsListViewController: LocationsViewModelDelegate {
+    func reloadData() {
+        tableView.reloadData()
+    }
+
+    
     func showError(message: String) {
         let alertController = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
         let action = UIAlertAction(title: "OK", style: .cancel, handler: nil)
@@ -91,9 +95,6 @@ extension PinsListViewController: LocationsFetcherDelegate, ErrorHandlerDelegate
         self.present(alertController, animated: true, completion: nil)
     }
     
-    func fetchedSuccessfully() {
-        tableView.reloadData()
-    }
 }
 
 

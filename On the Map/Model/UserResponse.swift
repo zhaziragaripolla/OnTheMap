@@ -11,11 +11,9 @@ import Foundation
 struct User {
     static var firstName = ""
     static var lastName = ""
-    static var location: StudentLocation?
 }
 
 struct UserResponse: Codable {
     let firstName: String
     let lastName: String
-    let location: StudentLocation?
 }

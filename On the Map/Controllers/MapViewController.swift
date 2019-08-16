@@ -21,7 +21,6 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
         LocationsViewModel.shared.fetchLocations()
     }
 
@@ -29,9 +28,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         super.viewDidLoad()
         
         view.backgroundColor = .white
-        LocationsViewModel.shared.fetcherDelegate = self
-        LocationsViewModel.shared.errorDelegate = self
-//        LocationsViewModel.shared.fetchLocations()
+        LocationsViewModel.shared.delegate = self
         
         setupMapView()
         setupBarItems()
@@ -60,24 +57,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     }
     
     @objc func didTapAddButton(_ sender: UIBarButtonItem) {
-//        if User.location != nil {
-//            let alertController = UIAlertController(title: "New location", message: "There is one location: \(User.location!) found. Would you like to override it?", preferredStyle: .alert)
-//
-//            alertController.addAction(UIAlertAction(title: "Override", style: .default, handler: { action in
-//
-//                 self.delegate?.updateExitingLocation()
-//                 self.present(PostLocationViewController(), animated: true)
-//
-//            }))
-//            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-//            self.present(alertController, animated: true, completion: nil)
-//        }
-//        else {
-//            delegate?.postNewLocation()
-//            self.navigationController?.pushViewController(PostLocationViewController(), animated: true)
-//        }
         self.present(UINavigationController(rootViewController: PostLocationViewController()), animated: true)
-        
     }
     
     func updateExistingLocatoin () {
@@ -85,8 +65,8 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     }
     
     @objc func didTapLogoutButton(_ sender: UIBarButtonItem) {
-        dismiss(animated: true, completion: nil)
         LocationsViewModel.shared.deleteSession()
+        dismiss(animated: true, completion: nil)
     }
     
     @objc func didTapReloadButton(_ sender: UIBarButtonItem) {
@@ -146,7 +126,15 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     }
 }
 
-extension MapViewController: LocationsFetcherDelegate, ErrorHandlerDelegate {
+extension MapViewController: LocationsViewModelDelegate {
+    func reloadData() {
+        setupPins()
+    }
+    
+//    func taskCompleted() {
+//        setupPins()
+//    }
+    
     func showError(message: String) {
         let alertController = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
         let action = UIAlertAction(title: "OK", style: .cancel, handler: nil)
@@ -154,9 +142,6 @@ extension MapViewController: LocationsFetcherDelegate, ErrorHandlerDelegate {
         self.present(alertController, animated: true, completion: nil)
     }
     
-    func fetchedSuccessfully() {
-        setupPins()
-    }
 }
 
 

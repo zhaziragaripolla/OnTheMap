@@ -8,25 +8,16 @@
 
 import Foundation
 
+protocol AuthenticationCompletionDelegate: class {
+    func completed()
+}
+
 protocol LocationsViewModelDelegate: class {
     func reloadData()
 }
 
-protocol SessionCompletionDelegate: class {
-    func createdSuccessfully()
-//    func showError(message: String)
-}
-
-protocol LocationPostCompletionDelegate: class {
-    func postedSuccessfully()
-}
-
-
-protocol LocationsFetcherDelegate: class {
-    func fetchedSuccessfully()
-}
-
-protocol ErrorHandlerDelegate: class {
+protocol NetworkTaskCompletionDelegate: class {
+    func taskCompleted()
     func showError(message: String)
 }
 
@@ -38,15 +29,14 @@ class LocationsViewModel {
             delegate?.reloadData()
         }
     }
+    var existingStudentLocaton: StudentLocation?
     let udacityClient = UdacityClient()
     let parseClient = ParseClient()
     let requestProvider = RequestProvider()
     
     weak var delegate: LocationsViewModelDelegate?
-    weak var sessionDelegate: SessionCompletionDelegate?
-    weak var errorDelegate: ErrorHandlerDelegate?
-    weak var fetcherDelegate: LocationsFetcherDelegate?
-    weak var posterDelegate: LocationPostCompletionDelegate?
+    weak var taskDelegate: NetworkTaskCompletionDelegate?
+    weak var authenticationDelegate: AuthenticationCompletionDelegate?
     
     private init() {}
     
@@ -58,10 +48,10 @@ class LocationsViewModel {
             case .success(let response):
                 Auth.accountKey = response.account.key
                 Auth.sessionId = response.session.id
-                print(Auth.accountKey)
-                self?.sessionDelegate?.createdSuccessfully()
+                self?.authenticationDelegate?.completed()
+//                self?.taskDelegate?.taskCompleted()
             case .failure(let error):
-                self?.errorDelegate?.showError(message: error.localizedDescription)
+                self?.taskDelegate?.showError(message: error.localizedDescription)
             }
             
         })
@@ -73,9 +63,9 @@ class LocationsViewModel {
             switch result {
             case .success(let response):
                 self?.locations = response.results
-                self?.fetcherDelegate?.fetchedSuccessfully()
+                self?.taskDelegate?.taskCompleted()
             case .failure(let error):
-                self?.errorDelegate?.showError(message: error.localizedDescription)
+                self?.taskDelegate?.showError(message: error.localizedDescription)
             }
             
         }
@@ -89,9 +79,11 @@ class LocationsViewModel {
             case .success(let response):
                 User.firstName = response.firstName
                 User.lastName = response.lastName
-                User.location = response.location
+                self?.taskDelegate?.taskCompleted()
+                print("user\(response.firstName) \(response.lastName) fetched")
             case .failure(let error):
-                self?.errorDelegate?.showError(message: error.localizedDescription)
+                print("user unfetched")
+                self?.taskDelegate?.showError(message: error.localizedDescription)
             }
             
         }
@@ -99,35 +91,53 @@ class LocationsViewModel {
     
     func setNewLocation(location: String, mediaURL: String, latitude: Float, longitude: Float) {
         
-        let newLocation = StudentLocation(firstName: User.firstName, lastName: User.lastName, mapString: location, latitude: latitude, longitude: longitude, mediaURL: mediaURL, objectId: nil, uniqueKey: mediaURL)
+        let newLocationRequest = StudentLocationRequest(firstName: User.firstName, lastName: User.lastName, mapString: location, latitude: latitude, longitude: longitude, mediaURL: mediaURL, uniqueKey: mediaURL)
         
-        if User.location != nil {
-            putLocation(location: newLocation)
-        }
-        else {
-            postNewLocation(location: newLocation)
-        }
+        existingStudentLocaton != nil ? putLocation() : postNewLocation(newLocationRequest)
+        
     }
     
-    private func postNewLocation(location: StudentLocation) {
+    private func postNewLocation(_ location: StudentLocationRequest) {
      
         let request = requestProvider.postStudentLocation(location)
         parseClient.makeRequest(request, responseType: PostStudentLocationResponse.self) { [weak self] result in
             switch result {
-            case .success:
-                User.location = location
+            case .success(let response):
+                self?.existingStudentLocaton = StudentLocation(firstName: location.firstName, lastName: location.lastName, mapString: location.mapString, latitude: location.latitude, longitude: location.longitude, mediaURL: location.mediaURL, objectId: response.objectId, uniqueKey: location.uniqueKey)
+                self?.taskDelegate?.taskCompleted()
+                print("POST-success")
             case .failure(let error):
-                self?.errorDelegate?.showError(message: error.localizedDescription)
+                print("POST-failure")
+                self?.taskDelegate?.showError(message: error.localizedDescription)
             }
             
         }
     }
     
-    private func putLocation(location: StudentLocation) {
-        
+    private func putLocation() {
+        let request = requestProvider.putStudentLocation(existingStudentLocaton!)
+        parseClient.makeRequest(request, responseType: PutStudentLocationResponse.self) { [weak self] result in
+            switch result {
+            case .success:
+                self?.taskDelegate?.taskCompleted()
+            case .failure(let error):
+                self?.taskDelegate?.showError(message: error.localizedDescription)
+            }
+            
+        }
     }
     
+    
     func deleteSession() {
-        
+        let request = requestProvider.deleteSession()
+        udacityClient.makeRequest(request, responseType: Session.self, callback: { [weak self] result in
+            switch result {
+            case .success:
+                print("DELTEDD")
+//                self?.taskDelegate?.taskCompleted()
+            case .failure(let error): break
+//                self?.taskDelegate?.showError(message: error.localizedDescription)
+            }
+        })
     }
 }
