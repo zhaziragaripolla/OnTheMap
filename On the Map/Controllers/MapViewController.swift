@@ -9,16 +9,23 @@
 import UIKit
 import MapKit
 
-class MapViewController: UIViewController, MKMapViewDelegate, LocationsViewModelDelegate {
+class MapViewController: UIViewController, MKMapViewDelegate {
    
-    let mapView = MKMapView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
-    var viewModel: LocationsViewModel!
+    let mapView = MKMapView(frame: .zero)
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        LocationsViewModel.shared.fetchLocations()
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         view.backgroundColor = .white
-        viewModel.delegate = self
+        LocationsViewModel.shared.fetcherDelegate = self
+        LocationsViewModel.shared.errorDelegate = self
+//        LocationsViewModel.shared.fetchLocations()
         
         setupMapView()
         setupBarItems()
@@ -43,54 +50,43 @@ class MapViewController: UIViewController, MKMapViewDelegate, LocationsViewModel
         let logoutItem = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(didTapLogoutButton(_:)))
         navigationItem.leftBarButtonItems = [logoutItem]
         navigationItem.rightBarButtonItems = [addItem, reloadItem]
-    }
-    
-    func reloadData() {
-        setupPins()
+        self.tabBarController?.tabBar.isHidden = false
     }
     
     @objc func didTapAddButton(_ sender: UIBarButtonItem) {
-        
+        navigationController?.pushViewController(PostLocationViewController(), animated: true)
     }
     
     @objc func didTapLogoutButton(_ sender: UIBarButtonItem) {
         dismiss(animated: true, completion: nil)
+        LocationsViewModel.shared.deleteSession()
     }
     
     @objc func didTapReloadButton(_ sender: UIBarButtonItem) {
-        
+        LocationsViewModel.shared.fetchLocations()
     }
     
     
     func setupPins() {
-        let locations = viewModel.locations
+        let locations = LocationsViewModel.shared.locations
         var annotations = [MKPointAnnotation]()
 
         for item in locations {
-
-            // Notice that the float values are being used to create CLLocationDegree values.
-            // This is a version of the Double type.
             let lat = CLLocationDegrees(Double(item.latitude))
             let long = CLLocationDegrees(Double(item.longitude))
-
-            // The lat and long are used to create a CLLocationCoordinates2D instance.
             let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
-            print(coordinate)
+           
             let first = item.firstName
             let last = item.lastName
             let mediaURL = item.mapString
-
-            // Here we create the annotation and set its coordiate, title, and subtitle properties
             let annotation = MKPointAnnotation()
             annotation.coordinate = coordinate
             annotation.title = "\(first) \(last)"
             annotation.subtitle = mediaURL
 
-            // Finally we place the annotation in an array of annotations.
             annotations.append(annotation)
         }
 
-        // When the array is complete, we add the annotations to the map.
         self.mapView.addAnnotations(annotations)
         
     }
@@ -120,6 +116,19 @@ class MapViewController: UIViewController, MKMapViewDelegate, LocationsViewModel
                 app.open(URL(string: toOpen)!, options: [:], completionHandler: nil)
             }
         }
+    }
+}
+
+extension MapViewController: LocationsFetcherDelegate, ErrorHandlerDelegate {
+    func showError(message: String) {
+        let alertController = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        let action = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+        alertController.addAction(action)
+        self.present(alertController, animated: true, completion: nil)
+    }
+    
+    func fetchedSuccessfully() {
+        setupPins()
     }
 }
 

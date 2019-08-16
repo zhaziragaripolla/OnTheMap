@@ -10,14 +10,10 @@ import Foundation
 
 class RequestProvider {
     let requestBuilder = RequestBuilder()
-//    var baseHeaders: HTTPHeaders {
-//        return [
-//            "Authorization": "Client-ID \(Credentials.clientID)"
-//        ]
-//    }
 
     func getStudentLocations() -> URLRequest {
-        return requestBuilder.buildRequest(path: "/StudentLocation", method: .GET, headers: nil, body: nil, query: nil)
+        let query = ["limit" : "100", "skip" : "0", "order" : "-updatedAt"]
+        return requestBuilder.buildRequest(path: "/StudentLocation", method: .GET, headers: nil, body: nil, query: query)
     }
     
     func createSession(login: String, password: String)-> URLRequest{
@@ -31,11 +27,28 @@ class RequestProvider {
         return requestBuilder.buildRequest(path: "/session", method: .POST, headers: headers, body: body, query: nil)
     }
     
-//    func makeGetCollectionsRequest(page: Int) -> Request {
-//        let params: HTTPQueryParameters = [
-//            "page": page.description
-//        ]
-//
-//        return Request(path: "/collections", method: .GET, headers: baseHeaders, query: params)
-//    }
+    func getUserData()-> URLRequest {
+        return requestBuilder.buildRequest(path: "/users/" + Auth.accountKey, method: .GET, headers: nil, body: nil, query: nil)
+    }
+    
+    func postStudentLocation(location: String, mediaURL: String, latitude: Float, longitude: Float)-> URLRequest {
+        let headers = [
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "X-Parse-Application-Id": "QrX47CA9cyuGewLdsL7o5Eb8iug6Em8ye0dnAbIr",
+            "X-Parse-REST-API-Key" : "QuWThTdiRmTux3YaDseUSEpUKo7aBYM737yKd4gY"
+        ]
+
+        let body: HTTPBodyParameters = [
+            "uniqueKey" : Auth.accountKey,
+            "firstName" : User.firstName,
+            "lastName" : User.lastName,
+            "mapString" : location,
+            "mediaURL" : mediaURL,
+            "latitude" : latitude,
+            "longitude" : longitude
+        ]
+        return requestBuilder.buildRequest(path: "/StudentLocation", method: .POST, headers: headers, body: body, query: nil)
+    }
+
 }
