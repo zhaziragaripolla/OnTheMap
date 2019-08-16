@@ -43,6 +43,7 @@ class ConfirmLocationViewController: UIViewController, MKMapViewDelegate {
         
         LocationsViewModel.shared.errorDelegate = self
         LocationsViewModel.shared.posterDelegate = self
+        LocationsViewModel.shared.updaterDelegate = self
         
         view.backgroundColor = .white
         finishButton.addTarget(self, action: #selector(didTapFinishButton(_:)), for: .touchUpInside)
@@ -99,10 +100,9 @@ class ConfirmLocationViewController: UIViewController, MKMapViewDelegate {
     
     
     @objc func didTapFinishButton(_ sender: UIButton) {
-        // TODO: save new location to view model
-        LocationsViewModel.shared.getUserData()
+        LoadingOverlay.shared.showOverlay(view: view)
+        
         LocationsViewModel.shared.setNewLocation(location: locationName, mediaURL: mediaUrl, latitude: Float(locationCoordinate.latitude), longitude: Float(locationCoordinate.longitude))
-
     }
     
     
@@ -119,12 +119,19 @@ class ConfirmLocationViewController: UIViewController, MKMapViewDelegate {
 
 }
 
-extension ConfirmLocationViewController: LocationPostCompletionDelegate, ErrorHandlerDelegate {
+extension ConfirmLocationViewController: LocationPostCompletionDelegate, ErrorHandlerDelegate, LocationUpdateComletionDelegate {
+    func putSuccessfully() {
+        LoadingOverlay.shared.hideOverlayView()
+        dismiss(animated: true, completion: nil)
+    }
+    
     func postedSuccessfully() {
+        LoadingOverlay.shared.hideOverlayView()
         dismiss(animated: true, completion: nil)
     }
     
     func showError(message: String) {
+        LoadingOverlay.shared.showOverlay(view: view)
         let alertController = UIAlertController(title: "New location", message: message, preferredStyle: .alert)
         alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
         present(alertController, animated: true, completion: nil)

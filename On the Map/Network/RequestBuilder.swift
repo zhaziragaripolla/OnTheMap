@@ -40,16 +40,15 @@ class RequestBuilder {
         return urlRequest
     }
     
-    private func setHeaders(_ headers: HTTPHeaders?, to request: inout URLRequest) {
+    func setHeaders(_ headers: HTTPHeaders?, to request: inout URLRequest) {
         guard let unwrappedHeaders = headers else { return }
         
         for (key, value) in unwrappedHeaders {
-            print(value, key)
             request.addValue(value, forHTTPHeaderField: key)
         }
     }
     
-    private func setBodyParameters(_ parameters: HTTPBodyParameters?, to request: inout URLRequest) {
+    func setBodyParameters(_ parameters: HTTPBodyParameters?, to request: inout URLRequest) {
         guard
             let unwrappedBodyParameters = parameters,
             let body = try? JSONSerialization.data(withJSONObject: unwrappedBodyParameters, options: .prettyPrinted)
@@ -61,7 +60,7 @@ class RequestBuilder {
 //        print(String(data: request.httpBody!, encoding: .utf8))
     }
     
-    private func setQueryParameters(_ parameters: HTTPQueryParameters?, to url: inout URL) {
+    func setQueryParameters(_ parameters: HTTPQueryParameters?, to url: inout URL) {
         guard
             let unwrappedQueryParameters = parameters,
             var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)

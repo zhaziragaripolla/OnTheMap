@@ -11,7 +11,7 @@ import Foundation
 struct User {
     static var firstName = ""
     static var lastName = ""
-    static var location: StudentLocation?
+    static var location: StudentLocationRequest?
 }
 
 struct UserResponse: Codable {

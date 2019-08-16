@@ -80,7 +80,14 @@ class LoginViewController: UIViewController {
     }
     
     @objc func didTapLoginButton(_ sender: UIButton) {
-        LocationsViewModel.shared.createSession()
+        guard let email = loginTextField.text, let password = passwordTextField.text else {
+            let alertController = UIAlertController(title: "Logging in", message: "Please fill in login or password", preferredStyle: .alert)
+            alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+            self.present(alertController, animated: true, completion: nil)
+            return
+        }
+        LocationsViewModel.shared.createSession(email: email, password: password)
+        LocationsViewModel.shared.getUserData()
         LoadingOverlay.shared.showOverlay(view: view)
     }
 }

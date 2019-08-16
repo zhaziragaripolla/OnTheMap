@@ -60,24 +60,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     }
     
     @objc func didTapAddButton(_ sender: UIBarButtonItem) {
-//        if User.location != nil {
-//            let alertController = UIAlertController(title: "New location", message: "There is one location: \(User.location!) found. Would you like to override it?", preferredStyle: .alert)
-//
-//            alertController.addAction(UIAlertAction(title: "Override", style: .default, handler: { action in
-//
-//                 self.delegate?.updateExitingLocation()
-//                 self.present(PostLocationViewController(), animated: true)
-//
-//            }))
-//            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-//            self.present(alertController, animated: true, completion: nil)
-//        }
-//        else {
-//            delegate?.postNewLocation()
-//            self.navigationController?.pushViewController(PostLocationViewController(), animated: true)
-//        }
         self.present(UINavigationController(rootViewController: PostLocationViewController()), animated: true)
-        
     }
     
     func updateExistingLocatoin () {
