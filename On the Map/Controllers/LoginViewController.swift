@@ -9,8 +9,6 @@
 import UIKit
 
 class LoginViewController: UIViewController {
-    // TODO: add activity indicator
-    // TODO: show password as *
     
     lazy var logoImageView: UIImageView = {
         let imageView = UIImageView()
@@ -22,8 +20,7 @@ class LoginViewController: UIViewController {
     lazy var loginTextField: UITextField = {
         let textField = UITextField()
         textField.font = UIFont.systemFont(ofSize: 14)
-        textField.text = "insert login"
-        textField.backgroundColor = .white
+        textField.placeholder = "email"
         textField.layer.borderWidth = 1.0
         textField.layer.cornerRadius = 5
         textField.delegate = self
@@ -33,9 +30,9 @@ class LoginViewController: UIViewController {
     lazy var passwordTextField: UITextField = {
         let textField = UITextField()
         textField.font = UIFont.systemFont(ofSize: 14)
-        textField.text = "insert password"
+        textField.placeholder = "password"
+        textField.isSecureTextEntry = true
         textField.layer.borderWidth = 1.0
-        textField.backgroundColor = .white
         textField.layer.cornerRadius = 5
         textField.delegate = self
         return textField
@@ -55,27 +52,21 @@ class LoginViewController: UIViewController {
     
     lazy var signUpLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .lightBlue
-        label.font = UIFont.systemFont(ofSize: 18)
         label.text = "Don't have an account?"
         label.textAlignment = .center
-        label.backgroundColor = .clear
         return label
     }()
     
     lazy var signUpButton: UIButton = {
         let button = UIButton()
-        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 12)
         button.setTitleColor(.lightBlue, for: .normal)
         button.setTitle("Sign Up", for: .normal)
-        button.backgroundColor = .clear
         return button
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        LocationsViewModel.shared.sessionDelegate = self
-        LocationsViewModel.shared.errorDelegate = self
+        LocationsViewModel.shared.taskDelegate = self
         view.backgroundColor = .white
         loginButton.addTarget(self, action: #selector(didTapLoginButton(_:)), for: .touchUpInside)
         signUpButton.addTarget(self, action: #selector(didTapSignUpButton(_:)), for: .touchUpInside)
@@ -119,8 +110,8 @@ class LoginViewController: UIViewController {
     }
 }
 
-extension LoginViewController: SessionCompletionDelegate, ErrorHandlerDelegate {
-    func createdSuccessfully() {
+extension LoginViewController: NetworkTaskCompletionDelegate {
+    func taskCompleted() {
         LoadingOverlay.shared.hideOverlayView()
         present(TabBarController(), animated: true)
     }
@@ -137,6 +128,7 @@ extension LoginViewController: SessionCompletionDelegate, ErrorHandlerDelegate {
 
 extension LoginViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
         return true
     }
 }

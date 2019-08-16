@@ -21,7 +21,6 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
         LocationsViewModel.shared.fetchLocations()
     }
 
@@ -29,9 +28,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         super.viewDidLoad()
         
         view.backgroundColor = .white
-        LocationsViewModel.shared.fetcherDelegate = self
-        LocationsViewModel.shared.errorDelegate = self
-//        LocationsViewModel.shared.fetchLocations()
+        LocationsViewModel.shared.delegate = self
         
         setupMapView()
         setupBarItems()
@@ -129,7 +126,15 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     }
 }
 
-extension MapViewController: LocationsFetcherDelegate, ErrorHandlerDelegate {
+extension MapViewController: LocationsViewModelDelegate {
+    func reloadData() {
+        setupPins()
+    }
+    
+//    func taskCompleted() {
+//        setupPins()
+//    }
+    
     func showError(message: String) {
         let alertController = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
         let action = UIAlertAction(title: "OK", style: .cancel, handler: nil)
@@ -137,9 +142,6 @@ extension MapViewController: LocationsFetcherDelegate, ErrorHandlerDelegate {
         self.present(alertController, animated: true, completion: nil)
     }
     
-    func fetchedSuccessfully() {
-        setupPins()
-    }
 }
 
 

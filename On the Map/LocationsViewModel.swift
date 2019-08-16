@@ -12,24 +12,8 @@ protocol LocationsViewModelDelegate: class {
     func reloadData()
 }
 
-protocol SessionCompletionDelegate: class {
-    func createdSuccessfully()
-}
-
-protocol LocationPostCompletionDelegate: class {
-    func postedSuccessfully()
-}
-
-protocol LocationUpdateComletionDelegate: class {
-    func putSuccessfully()
-}
-
-
-protocol LocationsFetcherDelegate: class {
-    func fetchedSuccessfully()
-}
-
-protocol ErrorHandlerDelegate: class {
+protocol NetworkTaskCompletionDelegate: class {
+    func taskCompleted()
     func showError(message: String)
 }
 
@@ -47,11 +31,7 @@ class LocationsViewModel {
     let requestProvider = RequestProvider()
     
     weak var delegate: LocationsViewModelDelegate?
-    weak var sessionDelegate: SessionCompletionDelegate?
-    weak var errorDelegate: ErrorHandlerDelegate?
-    weak var fetcherDelegate: LocationsFetcherDelegate?
-    weak var posterDelegate: LocationPostCompletionDelegate?
-    weak var updaterDelegate: LocationUpdateComletionDelegate?
+    weak var taskDelegate: NetworkTaskCompletionDelegate?
     
     private init() {}
     
@@ -63,9 +43,9 @@ class LocationsViewModel {
             case .success(let response):
                 Auth.accountKey = response.account.key
                 Auth.sessionId = response.session.id
-                self?.sessionDelegate?.createdSuccessfully()
+                self?.taskDelegate?.taskCompleted()
             case .failure(let error):
-                self?.errorDelegate?.showError(message: error.localizedDescription)
+                self?.taskDelegate?.showError(message: error.localizedDescription)
             }
             
         })
@@ -77,9 +57,9 @@ class LocationsViewModel {
             switch result {
             case .success(let response):
                 self?.locations = response.results
-                self?.fetcherDelegate?.fetchedSuccessfully()
+                self?.taskDelegate?.taskCompleted()
             case .failure(let error):
-                self?.errorDelegate?.showError(message: error.localizedDescription)
+                self?.taskDelegate?.showError(message: error.localizedDescription)
             }
             
         }
@@ -93,8 +73,9 @@ class LocationsViewModel {
             case .success(let response):
                 User.firstName = response.firstName
                 User.lastName = response.lastName
+                self?.taskDelegate?.taskCompleted()
             case .failure(let error):
-                self?.errorDelegate?.showError(message: error.localizedDescription)
+                self?.taskDelegate?.showError(message: error.localizedDescription)
             }
             
         }
@@ -104,7 +85,7 @@ class LocationsViewModel {
         
         let newLocationRequest = StudentLocationRequest(firstName: User.firstName, lastName: User.lastName, mapString: location, latitude: latitude, longitude: longitude, mediaURL: mediaURL, uniqueKey: mediaURL)
         
-        User.location != nil ? putLocation() : postNewLocation(newLocationRequest)
+        existingStudentLocaton != nil ? putLocation() : postNewLocation(newLocationRequest)
         
     }
     
@@ -115,9 +96,9 @@ class LocationsViewModel {
             switch result {
             case .success(let response):
                 self?.existingStudentLocaton = StudentLocation(firstName: location.firstName, lastName: location.lastName, mapString: location.mapString, latitude: location.latitude, longitude: location.longitude, mediaURL: location.mediaURL, objectId: response.objectId, uniqueKey: location.uniqueKey)
-                self?.posterDelegate?.postedSuccessfully()
+                self?.taskDelegate?.taskCompleted()
             case .failure(let error):
-                self?.errorDelegate?.showError(message: error.localizedDescription)
+                self?.taskDelegate?.showError(message: error.localizedDescription)
             }
             
         }
@@ -128,9 +109,9 @@ class LocationsViewModel {
         parseClient.makeRequest(request, responseType: PutStudentLocationResponse.self) { [weak self] result in
             switch result {
             case .success:
-                self?.updaterDelegate?.putSuccessfully()
+                self?.taskDelegate?.taskCompleted()
             case .failure(let error):
-                self?.errorDelegate?.showError(message: error.localizedDescription)
+                self?.taskDelegate?.showError(message: error.localizedDescription)
             }
             
         }

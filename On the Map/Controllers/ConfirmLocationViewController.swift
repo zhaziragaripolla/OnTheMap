@@ -41,15 +41,14 @@ class ConfirmLocationViewController: UIViewController, MKMapViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        LocationsViewModel.shared.errorDelegate = self
-        LocationsViewModel.shared.posterDelegate = self
-        LocationsViewModel.shared.updaterDelegate = self
+        LocationsViewModel.shared.taskDelegate = self
         
         view.backgroundColor = .white
+        
         finishButton.addTarget(self, action: #selector(didTapFinishButton(_:)), for: .touchUpInside)
+        
         setupMapView()
         showOnTheMap()
-        // Do any additional setup after loading the view.
     }
     
     fileprivate func setupMapView() {
@@ -85,17 +84,15 @@ class ConfirmLocationViewController: UIViewController, MKMapViewDelegate {
     }
     
     func showOnTheMap() {
-        if let coordinate = locationCoordinate {
-            let annotation = MKPointAnnotation()
-            annotation.coordinate = coordinate
-            annotation.subtitle = mediaUrl
-            mapView.addAnnotation(annotation)
-            resultLabel.text = annotation.description
-            mapView.setCenter(coordinate, animated: true)
-        }
-        else {
-            // TODO: show alert controller
-        }
+        
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = locationCoordinate
+        annotation.subtitle = mediaUrl
+        mapView.addAnnotation(annotation)
+        resultLabel.text = annotation.description
+//        mapView.setCenter(locationCoordinate, animated: true)
+        let viewRegion = MKCoordinateRegion(center: locationCoordinate, latitudinalMeters: 10_000, longitudinalMeters: 10_000)
+        mapView.setRegion(viewRegion, animated: false)
     }
     
     
@@ -119,13 +116,8 @@ class ConfirmLocationViewController: UIViewController, MKMapViewDelegate {
 
 }
 
-extension ConfirmLocationViewController: LocationPostCompletionDelegate, ErrorHandlerDelegate, LocationUpdateComletionDelegate {
-    func putSuccessfully() {
-        LoadingOverlay.shared.hideOverlayView()
-        dismiss(animated: true, completion: nil)
-    }
-    
-    func postedSuccessfully() {
+extension ConfirmLocationViewController: NetworkTaskCompletionDelegate{
+    func taskCompleted() {
         LoadingOverlay.shared.hideOverlayView()
         dismiss(animated: true, completion: nil)
     }
