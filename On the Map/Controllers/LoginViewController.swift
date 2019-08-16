@@ -66,11 +66,16 @@ class LoginViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         LocationsViewModel.shared.taskDelegate = self
+        LocationsViewModel.shared.authenticationDelegate = self
+        
         view.backgroundColor = .white
+        
         loginButton.addTarget(self, action: #selector(didTapLoginButton(_:)), for: .touchUpInside)
         signUpButton.addTarget(self, action: #selector(didTapSignUpButton(_:)), for: .touchUpInside)
         layoutView()
+        
     }
 
     func layoutView() {
@@ -101,7 +106,6 @@ class LoginViewController: UIViewController {
             return
         }
         LocationsViewModel.shared.createSession(email: email, password: password)
-        LocationsViewModel.shared.getUserData()
         LoadingOverlay.shared.showOverlay(view: view)
     }
     
@@ -110,7 +114,11 @@ class LoginViewController: UIViewController {
     }
 }
 
-extension LoginViewController: NetworkTaskCompletionDelegate {
+extension LoginViewController: NetworkTaskCompletionDelegate, AuthenticationCompletionDelegate {
+    func completed() {
+        LocationsViewModel.shared.getUserData()
+    }
+    
     func taskCompleted() {
         LoadingOverlay.shared.hideOverlayView()
         present(TabBarController(), animated: true)

@@ -58,7 +58,7 @@ class RequestProvider {
             "latitude" : location.latitude,
             "longitude" : location.longitude
         ]
-        
+        print(location.firstName, location.lastName)
         return requestBuilder.buildRequest(path: "/StudentLocation", method: .POST, headers: headers, body: body, query: nil)
     }
     
@@ -81,6 +81,19 @@ class RequestProvider {
         ]
         
         return requestBuilder.buildRequest(path: "/StudentLocation/\(location.objectId)", method: .PUT, headers: headers, body: body, query: nil)
+    }
+    
+    func deleteSession()-> URLRequest {
+        var xsrfCookie: HTTPCookie? = nil
+        let sharedCookieStorage = HTTPCookieStorage.shared
+        
+        for cookie in sharedCookieStorage.cookies! {
+            if cookie.name == "XSRF-TOKEN" { xsrfCookie = cookie }
+        }
+        
+        let headers: HTTPHeaders = [ "XSRF-TOKEN" : xsrfCookie!.description]
+      
+        return requestBuilder.buildRequest(path: "/session", method: .DELETE, headers: headers, body: nil, query: nil)
     }
 
 }

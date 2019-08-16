@@ -8,6 +8,10 @@
 
 import Foundation
 
+protocol AuthenticationCompletionDelegate: class {
+    func completed()
+}
+
 protocol LocationsViewModelDelegate: class {
     func reloadData()
 }
@@ -32,6 +36,7 @@ class LocationsViewModel {
     
     weak var delegate: LocationsViewModelDelegate?
     weak var taskDelegate: NetworkTaskCompletionDelegate?
+    weak var authenticationDelegate: AuthenticationCompletionDelegate?
     
     private init() {}
     
@@ -43,7 +48,8 @@ class LocationsViewModel {
             case .success(let response):
                 Auth.accountKey = response.account.key
                 Auth.sessionId = response.session.id
-                self?.taskDelegate?.taskCompleted()
+                self?.authenticationDelegate?.completed()
+//                self?.taskDelegate?.taskCompleted()
             case .failure(let error):
                 self?.taskDelegate?.showError(message: error.localizedDescription)
             }
@@ -74,7 +80,9 @@ class LocationsViewModel {
                 User.firstName = response.firstName
                 User.lastName = response.lastName
                 self?.taskDelegate?.taskCompleted()
+                print("user\(response.firstName) \(response.lastName) fetched")
             case .failure(let error):
+                print("user unfetched")
                 self?.taskDelegate?.showError(message: error.localizedDescription)
             }
             
@@ -97,7 +105,9 @@ class LocationsViewModel {
             case .success(let response):
                 self?.existingStudentLocaton = StudentLocation(firstName: location.firstName, lastName: location.lastName, mapString: location.mapString, latitude: location.latitude, longitude: location.longitude, mediaURL: location.mediaURL, objectId: response.objectId, uniqueKey: location.uniqueKey)
                 self?.taskDelegate?.taskCompleted()
+                print("POST-success")
             case .failure(let error):
+                print("POST-failure")
                 self?.taskDelegate?.showError(message: error.localizedDescription)
             }
             
@@ -119,6 +129,15 @@ class LocationsViewModel {
     
     
     func deleteSession() {
-        
+        let request = requestProvider.deleteSession()
+        udacityClient.makeRequest(request, responseType: Session.self, callback: { [weak self] result in
+            switch result {
+            case .success:
+                print("DELTEDD")
+//                self?.taskDelegate?.taskCompleted()
+            case .failure(let error): break
+//                self?.taskDelegate?.showError(message: error.localizedDescription)
+            }
+        })
     }
 }

@@ -8,8 +8,10 @@
 
 import Foundation
 
+
 class UdacityClient {
     
+    let cookies: [HTTPCookie] = []
     func makeRequest<T: Codable>(_ request: URLRequest, responseType: T.Type, callback: @escaping (Result<T>) -> ()) {
         
         let dataTask = URLSession.shared.dataTask(with: request) { (data, response, error) in
@@ -20,6 +22,7 @@ class UdacityClient {
             if let httpResponse = response as? HTTPURLResponse {
                 print(httpResponse.statusCode)
                 switch httpResponse.statusCode {
+                
                 case 500...511:
                     DispatchQueue.main.async {
                         callback(.failure(error: NetworkError.serverError))
@@ -28,6 +31,9 @@ class UdacityClient {
                 default:
                     break
                 }
+                let fields = httpResponse.allHeaderFields
+                let cookies = HTTPCookie.cookies(withResponseHeaderFields: fields as! [String : String], for: (response?.url!)!)
+                HTTPCookieStorage.shared.setCookies(cookies, for: response?.url, mainDocumentURL: nil)
             }
             
             guard var unwrappedData = data else {

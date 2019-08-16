@@ -16,5 +16,4 @@ struct User {
 struct UserResponse: Codable {
     let firstName: String
     let lastName: String
-    let location: StudentLocation?
 }

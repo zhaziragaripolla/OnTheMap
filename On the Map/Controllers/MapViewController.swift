@@ -65,8 +65,8 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     }
     
     @objc func didTapLogoutButton(_ sender: UIBarButtonItem) {
-        dismiss(animated: true, completion: nil)
         LocationsViewModel.shared.deleteSession()
+        dismiss(animated: true, completion: nil)
     }
     
     @objc func didTapReloadButton(_ sender: UIBarButtonItem) {

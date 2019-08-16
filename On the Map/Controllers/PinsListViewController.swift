@@ -62,8 +62,8 @@ class PinsListViewController: UIViewController {
     }
     
     @objc func didTapLogoutButton(_ sender: UIBarButtonItem) {
-        dismiss(animated: true, completion: nil)
         LocationsViewModel.shared.deleteSession()
+        dismiss(animated: true, completion: nil)
     }
     
 
