@@ -9,9 +9,15 @@
 import UIKit
 import MapKit
 
+protocol MapViewControllerDelegate: class {
+    func updateExitingLocation()
+    func postNewLocation()
+}
+
 class MapViewController: UIViewController, MKMapViewDelegate {
    
     let mapView = MKMapView(frame: .zero)
+    weak var delegate: MapViewControllerDelegate?
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -54,7 +60,28 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     }
     
     @objc func didTapAddButton(_ sender: UIBarButtonItem) {
-        navigationController?.pushViewController(PostLocationViewController(), animated: true)
+//        if User.location != nil {
+//            let alertController = UIAlertController(title: "New location", message: "There is one location: \(User.location!) found. Would you like to override it?", preferredStyle: .alert)
+//
+//            alertController.addAction(UIAlertAction(title: "Override", style: .default, handler: { action in
+//
+//                 self.delegate?.updateExitingLocation()
+//                 self.present(PostLocationViewController(), animated: true)
+//
+//            }))
+//            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+//            self.present(alertController, animated: true, completion: nil)
+//        }
+//        else {
+//            delegate?.postNewLocation()
+//            self.navigationController?.pushViewController(PostLocationViewController(), animated: true)
+//        }
+        self.present(UINavigationController(rootViewController: PostLocationViewController()), animated: true)
+        
+    }
+    
+    func updateExistingLocatoin () {
+        
     }
     
     @objc func didTapLogoutButton(_ sender: UIBarButtonItem) {

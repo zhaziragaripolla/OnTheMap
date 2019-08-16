@@ -57,27 +57,39 @@ class NetworkManager {
                 return
             }
             
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            decoder.dateDecodingStrategy = .formatted(Formatter.iso8601)
             
             do {
-                print(String(data: unwrappedData, encoding: .utf8))
+//                print(String(data: unwrappedData, encoding: .utf8))
                 // skip first 4 characters for decoding Udacity API's responses
                 if isSkippingChars {
                     unwrappedData = unwrappedData.subdata(in: 5..<unwrappedData.count)
                 }
                 
-                let jsonDecoder = JSONDecoder()
-                jsonDecoder.keyDecodingStrategy = .convertFromSnakeCase
-                jsonDecoder.dateDecodingStrategy = .formatted(Formatter.iso8601)
-                let response = try jsonDecoder.decode(T.self, from: unwrappedData)
+                let response = try decoder.decode(T.self, from: unwrappedData)
                 DispatchQueue.main.async {
                     callback(.success(response: response))
                 }
                 
             } catch {
-                DispatchQueue.main.async {
-                    callback(.failure(error: error))
+                do {
+                    let errorResponse = try decoder.decode(UdacityErrorResponse.self, from: unwrappedData)
+                    
+                    DispatchQueue.main.async {
+                        print(errorResponse.errorMessage)
+                        callback(.failure(error: errorResponse))
+                    }
+                } catch {
+                    DispatchQueue.main.async {
+                        callback(.failure(error: error))
+                    }
                 }
-                
+//                DispatchQueue.main.async {
+//                    callback(.failure(error: error))
+//                }
+//
             }
         
             

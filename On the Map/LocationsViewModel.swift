@@ -59,7 +59,6 @@ class LocationsViewModel {
                 self?.sessionDelegate?.createdSuccessfully()
             case .failure(let error):
                 self?.errorDelegate?.showError(message: error.localizedDescription)
-                break
             }
             
         })
@@ -101,14 +100,16 @@ class LocationsViewModel {
         }
     }
     
-    func postNewLocation(location: String, mediaURL: String, latitude: Float, longtitude: Float) {
-        let request = requestProvider.postStudentLocation(location: location, mediaURL: mediaURL, latitude: latitude, longitude: longtitude)
+    func postNewLocation(location: String, mediaURL: String, latitude: Float, longitude: Float) {
+        var newLocation = StudentLocation(objectId: nil, uniqueKey: Auth.accountKey, firstName: User.firstName, lastName: User.lastName, mapString: location, latitude: latitude, longitude: longitude, createdAt: nil, updatedAt: nil, mediaURL: mediaURL)
+        let request = requestProvider.postStudentLocation(newLocation)
 
         networkManager.makeRequest(request, responseType: PostStudentLocationResponse.self, isSkippingChars: false) { result in
             switch result {
             case .success(let response):
-                print("New location is posted")
-             
+                newLocation.createdAt = response.createdAt
+                newLocation.objectId = response.objectId
+                User.location = newLocation
             case .failure(let error):
                 print("New location posting is unsuccessfull", error)
                 break
@@ -116,6 +117,10 @@ class LocationsViewModel {
             }
             
         }
+    }
+    
+    func putLocation(location: String, mediaURL: String, latitude: Float, longtitude: Float) {
+        
     }
     
     func deleteSession() {

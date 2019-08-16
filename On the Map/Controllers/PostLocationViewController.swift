@@ -8,11 +8,9 @@
 
 import UIKit
 import CoreLocation
-import MapKit
 
-class PostLocationViewController: UIViewController, MKMapViewDelegate {
-    
-    let mapView = MKMapView(frame: .zero)
+class PostLocationViewController: UIViewController {
+ 
     var latitude: CLLocationDegrees?
     var longtitude: CLLocationDegrees?
     
@@ -39,34 +37,11 @@ class PostLocationViewController: UIViewController, MKMapViewDelegate {
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 12)
         button.setTitleColor(.black, for: .normal)
         button.setTitle("Find", for: .normal)
-        button.backgroundColor = .clear
+        button.backgroundColor = .lightGray
         button.layer.cornerRadius = 5
         button.layer.borderWidth = 1
         button.layer.borderColor = UIColor.black.cgColor
         return button
-    }()
-    
-    lazy var finishButton: UIButton = {
-        let button = UIButton()
-        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 12)
-        button.setTitleColor(.white, for: .normal)
-        button.setTitle("Finish", for: .normal)
-        button.backgroundColor = UIColor.lightBlue
-        button.layer.cornerRadius = 30
-//        button.layer.borderWidth = 1
-//        button.layer.borderColor = UIColor.black.cgColor
-        return button
-    }()
-    
-    lazy var resultLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .lightBlue
-        label.font = UIFont.systemFont(ofSize: 18)
-        label.numberOfLines = 0
-        label.lineBreakMode = .byWordWrapping
-        label.textAlignment = .center
-        label.backgroundColor = .clear
-        return label
     }()
     
     var geocodoer = CLGeocoder()
@@ -74,11 +49,10 @@ class PostLocationViewController: UIViewController, MKMapViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .white
+        view.backgroundColor = .lightBlue
 //        self.tabBarController?.tabBar.isHidden = true
-        
+        self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(didTapCancelButton(_:)))
         findButton.addTarget(self, action: #selector(didTapFindButton(_:)), for: .touchUpInside)
-        finishButton.addTarget(self, action: #selector(didTapFinishButton(_:)), for: .touchUpInside)
         
         let stackView = UIStackView(arrangedSubviews: [locationTextField, linkTextField, findButton])
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -93,107 +67,72 @@ class PostLocationViewController: UIViewController, MKMapViewDelegate {
             stackView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.6),
             stackView.heightAnchor.constraint(equalToConstant: 90)
             ])
-        
-        
-        setupMapView()
-    }
-    
-    fileprivate func setupMapView() {
-        view.addSubview(mapView)
-        mapView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            mapView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-            mapView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            mapView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            mapView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
-            ])
-        mapView.isHidden = true
-        mapView.delegate = self
-        
-        mapView.addSubview(finishButton)
-        finishButton.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            finishButton.widthAnchor.constraint(equalToConstant: 60),
-            finishButton.heightAnchor.constraint(equalToConstant: 60),
-            finishButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -15),
-            finishButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -15)
-            ])
-        finishButton.isHidden = true
-        
-        
-        mapView.addSubview(resultLabel)
-        resultLabel.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            resultLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            resultLabel.heightAnchor.constraint(equalToConstant: 60),
-            resultLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -15),
-            resultLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 15)
-            ])
-        
-        resultLabel.isHidden = true
     }
     
     @objc func didTapFindButton(_ sender: UIButton) {
-        if locationTextField.text!.isEmpty, linkTextField.text!.isEmpty {
+        
+        guard let location = locationTextField.text, let link = linkTextField.text else {
+            let alertController = UIAlertController(title: "New location", message: "Please fill in new location or link", preferredStyle: .alert)
+            alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+            self.present(alertController, animated: true, completion: nil)
+            return
+        }
+        
+        LoadingOverlay.shared.showOverlay(view: view)
+        
+        findNewLocation(location) { success in
+            if success {
+                let vc = ShowNewLocationViewController()
+                vc.locationCoordinate = CLLocationCoordinate2D(latitude: self.latitude!, longitude: self.longtitude!)
+                vc.mediaUrl = link
+                vc.locationName = location
+                self.navigationController?.pushViewController(vc, animated: true)
+            }
             
         }
-        else {
-            geocodoer.geocodeAddressString(locationTextField.text!, in: nil) { [weak self] placemark, error in
-                guard let placemark = placemark else { return }
-                
-                if ((self?.latitude = placemark[0].location?.coordinate.latitude) != nil),
-                    ((self?.longtitude = placemark[0].location?.coordinate.longitude) != nil) {
-                    self?.showOnTheMap(latitude: self?.latitude ?? 0, longtitude: self?.longtitude ?? 0)
+        
+    }
+    
+    @objc func didTapCancelButton(_ sender: UIBarButtonItem) {
+        dismiss(animated: true, completion: nil)
+    }
+    
+    func findNewLocation(_ location: String, completion: @escaping (Bool)->()) {
+        
+        geocodoer.geocodeAddressString(location, in: nil) { [weak self] placemarks, error in
+            if let foundLocation = placemarks?.first?.location {
+                self?.latitude = foundLocation.coordinate.latitude
+                self?.longtitude = foundLocation.coordinate.longitude
+                DispatchQueue.main.async {
+                    LoadingOverlay.shared.hideOverlayView()
+                    completion(true)
                 }
-               
                 
-                else {
-                    let alertController = UIAlertController(title: "New location", message: "Not found", preferredStyle: .alert)
-                    let action = UIAlertAction(title: "OK", style: .cancel, handler: nil)
-                    alertController.addAction(action)
-                    self?.present(alertController, animated: true, completion: nil)
-
-                }
-               
             }
-        }
-    }
-    
-    @objc func didTapFinishButton(_ sender: UIButton) {
-        // TODO: save new location to view model
-        LocationsViewModel.shared.postNewLocation(location: locationTextField.text!, mediaURL: linkTextField.text!, latitude: Float(latitude!), longtitude: Float(longtitude!))
-    }
-    
-    func showOnTheMap(latitude: CLLocationDegrees, longtitude: CLLocationDegrees) {
-        mapView.isHidden = false
-        finishButton.isHidden = false
-        resultLabel.isHidden = false
-        let coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longtitude)
-        let annotation = MKPointAnnotation()
-        annotation.coordinate = coordinate
-//        annotation.subtitle = mediaURL
-        mapView.addAnnotation(annotation)
-        resultLabel.text = annotation.description
-        mapView.setCenter(coordinate, animated: true)
-    }
-    
-    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-        
-        let reuseId = "pin"
-        var pinView = mapView.dequeueReusableAnnotationView(withIdentifier: reuseId) as? MKPinAnnotationView
-        
-        if pinView == nil {
-            pinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: reuseId)
-            pinView!.canShowCallout = true
-            pinView!.pinTintColor = .red
-            pinView!.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
-        }
-        else {
-            pinView!.annotation = annotation
+            
+            if let error = error as? CLError {
+                
+                let errorType = error.errorCode == CLError.Code.geocodeFoundNoResult.rawValue ? "Not found" : "Error: \(error.code)"
+                
+                let alertController = UIAlertController(title: "New location", message: errorType, preferredStyle: .alert)
+                alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+                self?.present(alertController, animated: true, completion: nil)
+                DispatchQueue.main.async {
+                    LoadingOverlay.shared.hideOverlayView()
+                    completion(false)
+                }
+            }
+            
         }
         
-        return pinView
     }
     
-  
+//    func verifyUrl(_ link: String)-> Bool {
+//        if let url = URL(string: link) {
+//            return UIApplication.shared.canOpenURL(url)
+//        }
+//        return false
+//    }
+
+
 }
