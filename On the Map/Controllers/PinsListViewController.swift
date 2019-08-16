@@ -12,12 +12,17 @@ class PinsListViewController: UIViewController {
   
     let tableView = UITableView(frame: .zero)
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        LocationsViewModel.shared.fetchLocations()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         LocationsViewModel.shared.fetcherDelegate = self
         LocationsViewModel.shared.errorDelegate = self
-//        LocationsViewModel.shared.fetchLocations()
         
         view.backgroundColor = .white
         title = "Pins"

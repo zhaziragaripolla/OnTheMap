@@ -10,5 +10,6 @@ import Foundation
 
 struct Auth {
     static var accountKey = ""
-    static var sessdionId = ""
+    static var sessionId = ""
 }
+

@@ -12,6 +12,12 @@ import MapKit
 class MapViewController: UIViewController, MKMapViewDelegate {
    
     let mapView = MKMapView(frame: .zero)
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        LocationsViewModel.shared.fetchLocations()
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,8 +52,6 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         navigationItem.rightBarButtonItems = [addItem, reloadItem]
         self.tabBarController?.tabBar.isHidden = false
     }
-    
-    
     
     @objc func didTapAddButton(_ sender: UIBarButtonItem) {
         navigationController?.pushViewController(PostLocationViewController(), animated: true)

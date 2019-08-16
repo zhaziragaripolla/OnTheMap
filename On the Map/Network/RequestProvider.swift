@@ -12,7 +12,8 @@ class RequestProvider {
     let requestBuilder = RequestBuilder()
 
     func getStudentLocations() -> URLRequest {
-        return requestBuilder.buildRequest(path: "/StudentLocation", method: .GET, headers: nil, body: nil, query: nil)
+        let query = ["limit" : "100", "skip" : "0", "order" : "-updatedAt"]
+        return requestBuilder.buildRequest(path: "/StudentLocation", method: .GET, headers: nil, body: nil, query: query)
     }
     
     func createSession(login: String, password: String)-> URLRequest{

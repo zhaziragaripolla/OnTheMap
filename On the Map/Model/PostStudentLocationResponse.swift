@@ -12,3 +12,4 @@ struct PostStudentLocationResponse: Codable {
     let createdAt: Date?
     let objectId: String?
 }
+

@@ -12,10 +12,18 @@ class LoginViewController: UIViewController {
     // TODO: add activity indicator
     // TODO: show password as *
     
+    lazy var logoImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = UIImage(named: "logo-u")
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+    
     lazy var loginTextField: UITextField = {
         let textField = UITextField()
         textField.font = UIFont.systemFont(ofSize: 14)
         textField.text = "insert login"
+        textField.backgroundColor = .white
         textField.layer.borderWidth = 1.0
         textField.layer.cornerRadius = 5
         return textField
@@ -26,7 +34,9 @@ class LoginViewController: UIViewController {
         textField.font = UIFont.systemFont(ofSize: 14)
         textField.text = "insert password"
         textField.layer.borderWidth = 1.0
+        textField.backgroundColor = .white
         textField.layer.cornerRadius = 5
+//        textField.textContentType = .password
         return textField
     }()
     
@@ -35,7 +45,7 @@ class LoginViewController: UIViewController {
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 12)
         button.setTitleColor(.black, for: .normal)
         button.setTitle("LOG IN", for: .normal)
-        button.backgroundColor = .lightBlue
+        button.backgroundColor = .gray
         button.layer.cornerRadius = 5
         button.layer.borderWidth = 1
         button.layer.borderColor = UIColor.black.cgColor
@@ -48,15 +58,15 @@ class LoginViewController: UIViewController {
         super.viewDidLoad()
         
         LocationsViewModel.shared.sessionDelegate = self
+        LocationsViewModel.shared.errorDelegate = self
         view.backgroundColor = .white
-//        self.view.backgroundColor = UIColor(patternImage: UIImage(named: "background.png"))
         loginButton.addTarget(self, action: #selector(didTapLoginButton(_:)), for: .touchUpInside)
         
         layoutView()
     }
 
     func layoutView() {
-        let stackView = UIStackView(arrangedSubviews: [loginTextField, passwordTextField, loginButton])
+        let stackView = UIStackView(arrangedSubviews: [logoImageView, loginTextField, passwordTextField, loginButton])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.distribution = .fillEqually
         stackView.axis = .vertical
@@ -67,22 +77,24 @@ class LoginViewController: UIViewController {
             stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             stackView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.6),
-            stackView.heightAnchor.constraint(equalToConstant: 90)
+            stackView.heightAnchor.constraint(equalToConstant: 150)
             ])
     }
     
     @objc func didTapLoginButton(_ sender: UIButton) {
         LocationsViewModel.shared.createSession()
-        
+        LoadingOverlay.shared.showOverlay(view: view)
     }
 }
 
-extension LoginViewController: SessionCompletionDelegate {
+extension LoginViewController: SessionCompletionDelegate, ErrorHandlerDelegate {
     func createdSuccessfully() {
+        LoadingOverlay.shared.hideOverlayView()
         present(TabBarController(), animated: true)
     }
     
     func showError(message: String) {
+        LoadingOverlay.shared.hideOverlayView()
         let alertController = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
         let action = UIAlertAction(title: "OK", style: .cancel, handler: nil)
         alertController.addAction(action)

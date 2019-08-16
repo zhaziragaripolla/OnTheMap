@@ -49,12 +49,12 @@ class LocationsViewModel {
     }
     
     func createSession() {
-        let request = requestProvider.createSession(login: "zhumabayeva97@gmail.com", password: "Tools003")
+        let request = requestProvider.createSession(login: "humabayeva97@gmail.com", password: "Tools003")
         networkManager.makeRequest(request, responseType: UdacityResponse.self, isSkippingChars: true, callback: {[weak self] result in
             switch result {
             case .success(let response):
                 Auth.accountKey = response.account.key
-                Auth.sessdionId = response.session.id
+                Auth.sessionId = response.session.id
                 print(Auth.accountKey)
                 self?.sessionDelegate?.createdSuccessfully()
             case .failure(let error):

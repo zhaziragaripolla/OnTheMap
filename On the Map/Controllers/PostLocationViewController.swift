@@ -75,7 +75,7 @@ class PostLocationViewController: UIViewController, MKMapViewDelegate {
         super.viewDidLoad()
         
         view.backgroundColor = .white
-        self.tabBarController?.tabBar.isHidden = true
+//        self.tabBarController?.tabBar.isHidden = true
         
         findButton.addTarget(self, action: #selector(didTapFindButton(_:)), for: .touchUpInside)
         finishButton.addTarget(self, action: #selector(didTapFinishButton(_:)), for: .touchUpInside)
