@@ -26,6 +26,7 @@ class LoginViewController: UIViewController {
         textField.backgroundColor = .white
         textField.layer.borderWidth = 1.0
         textField.layer.cornerRadius = 5
+        textField.delegate = self
         return textField
     }()
     
@@ -36,7 +37,7 @@ class LoginViewController: UIViewController {
         textField.layer.borderWidth = 1.0
         textField.backgroundColor = .white
         textField.layer.cornerRadius = 5
-//        textField.textContentType = .password
+        textField.delegate = self
         return textField
     }()
     
@@ -52,19 +53,41 @@ class LoginViewController: UIViewController {
         return button
     }()
     
+    lazy var signUpLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .lightBlue
+        label.font = UIFont.systemFont(ofSize: 18)
+        label.text = "Don't have an account?"
+        label.textAlignment = .center
+        label.backgroundColor = .clear
+        return label
+    }()
+    
+    lazy var signUpButton: UIButton = {
+        let button = UIButton()
+        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 12)
+        button.setTitleColor(.lightBlue, for: .normal)
+        button.setTitle("Sign Up", for: .normal)
+        button.backgroundColor = .clear
+        return button
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         LocationsViewModel.shared.sessionDelegate = self
         LocationsViewModel.shared.errorDelegate = self
         view.backgroundColor = .white
         loginButton.addTarget(self, action: #selector(didTapLoginButton(_:)), for: .touchUpInside)
-        
+        signUpButton.addTarget(self, action: #selector(didTapSignUpButton(_:)), for: .touchUpInside)
         layoutView()
     }
 
     func layoutView() {
-        let stackView = UIStackView(arrangedSubviews: [logoImageView, loginTextField, passwordTextField, loginButton])
+    
+        let signUpStackView = UIStackView(arrangedSubviews: [signUpLabel, signUpButton])
+        signUpStackView.axis = .horizontal
+        
+        let stackView = UIStackView(arrangedSubviews: [logoImageView, loginTextField, passwordTextField, loginButton, signUpStackView])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.distribution = .fillEqually
         stackView.axis = .vertical
@@ -90,6 +113,10 @@ class LoginViewController: UIViewController {
         LocationsViewModel.shared.getUserData()
         LoadingOverlay.shared.showOverlay(view: view)
     }
+    
+    @objc func didTapSignUpButton(_ sender: UIButton) {
+        UIApplication.shared.open(URL(string: "https://auth.udacity.com/sign-up")!, options: [:], completionHandler: nil)
+    }
 }
 
 extension LoginViewController: SessionCompletionDelegate, ErrorHandlerDelegate {
@@ -106,4 +133,10 @@ extension LoginViewController: SessionCompletionDelegate, ErrorHandlerDelegate {
         self.present(alertController, animated: true, completion: nil)
     }
     
+}
+
+extension LoginViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        return true
+    }
 }

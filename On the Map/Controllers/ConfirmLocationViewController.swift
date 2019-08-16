@@ -36,7 +36,7 @@ class ConfirmLocationViewController: UIViewController, MKMapViewDelegate {
         button.layer.cornerRadius = 30
         return button
     }()
-    
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
