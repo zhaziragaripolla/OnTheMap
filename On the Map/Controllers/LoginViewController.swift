@@ -51,8 +51,6 @@ class LoginViewController: UIViewController {
         button.layer.borderColor = UIColor.black.cgColor
         return button
     }()
-    let networkManager = NetworkManager()
-    let requestProvider = RequestProvider()
     
     override func viewDidLoad() {
         super.viewDidLoad()

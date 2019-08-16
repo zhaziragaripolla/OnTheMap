@@ -8,6 +8,17 @@
 
 import Foundation
 
+typealias HTTPHeaders = [String: String]
+typealias HTTPBodyParameters = [String: Any]
+typealias HTTPQueryParameters = [String: String]
+
+enum HTTPMethod: String {
+    case GET
+    case POST
+    case PUT
+    case DELETE
+}
+
 class RequestBuilder {
     
     let baseURL = "https://onthemap-api.udacity.com/v1"

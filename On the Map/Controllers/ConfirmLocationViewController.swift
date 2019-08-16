@@ -9,7 +9,7 @@
 import UIKit
 import MapKit
 
-class ShowNewLocationViewController: UIViewController, MKMapViewDelegate {
+class ConfirmLocationViewController: UIViewController, MKMapViewDelegate {
 
     let mapView = MKMapView(frame: .zero)
     var locationCoordinate: CLLocationCoordinate2D!
@@ -40,6 +40,10 @@ class ShowNewLocationViewController: UIViewController, MKMapViewDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        LocationsViewModel.shared.errorDelegate = self
+        LocationsViewModel.shared.posterDelegate = self
+        
         view.backgroundColor = .white
         finishButton.addTarget(self, action: #selector(didTapFinishButton(_:)), for: .touchUpInside)
         setupMapView()
@@ -96,8 +100,9 @@ class ShowNewLocationViewController: UIViewController, MKMapViewDelegate {
     
     @objc func didTapFinishButton(_ sender: UIButton) {
         // TODO: save new location to view model
-        LocationsViewModel.shared.postNewLocation(location: locationName, mediaURL: mediaUrl, latitude: Float(locationCoordinate.latitude), longitude: Float(locationCoordinate.longitude))
-        dismiss(animated: true, completion: nil)
+        LocationsViewModel.shared.getUserData()
+        LocationsViewModel.shared.setNewLocation(location: locationName, mediaURL: mediaUrl, latitude: Float(locationCoordinate.latitude), longitude: Float(locationCoordinate.longitude))
+
     }
     
     
@@ -112,4 +117,17 @@ class ShowNewLocationViewController: UIViewController, MKMapViewDelegate {
         return pinView
     }
 
+}
+
+extension ConfirmLocationViewController: LocationPostCompletionDelegate, ErrorHandlerDelegate {
+    func postedSuccessfully() {
+        dismiss(animated: true, completion: nil)
+    }
+    
+    func showError(message: String) {
+        let alertController = UIAlertController(title: "New location", message: message, preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+        present(alertController, animated: true, completion: nil)
+    }
+    
 }

@@ -42,11 +42,11 @@ class RequestProvider {
         let body: HTTPBodyParameters = [
             "uniqueKey" : location.uniqueKey,
             "firstName" : location.firstName,
-            "lastName" : location.firstName,
+            "lastName" : location.lastName,
             "mapString" : location.mapString,
             "mediaURL" : location.mediaURL,
             "latitude" : location.latitude,
-            "longitude" : location.longitude
+            "longitud" : location.longitude
         ]
         return requestBuilder.buildRequest(path: "/StudentLocation", method: .POST, headers: headers, body: body, query: nil)
     }

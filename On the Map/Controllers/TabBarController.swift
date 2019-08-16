@@ -21,10 +21,6 @@ class TabBarController: UITabBarController {
         
         let pinsVC = PinsListViewController()
         pinsVC.tabBarItem = UITabBarItem(tabBarSystemItem: .bookmarks, tag: 2)
-
-        LocationsViewModel.shared.getUserData()
-        
-        
         viewControllers = [mapVC, pinsVC].map { UINavigationController(rootViewController: $0) }
     }
 }

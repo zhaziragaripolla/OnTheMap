@@ -82,7 +82,7 @@ class PostLocationViewController: UIViewController {
         
         findNewLocation(location) { success in
             if success {
-                let vc = ShowNewLocationViewController()
+                let vc = ConfirmLocationViewController()
                 vc.locationCoordinate = CLLocationCoordinate2D(latitude: self.latitude!, longitude: self.longtitude!)
                 vc.mediaUrl = link
                 vc.locationName = location

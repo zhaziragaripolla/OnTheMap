@@ -9,14 +9,12 @@
 import Foundation
 
 struct StudentLocation: Codable {
-    var objectId: String?
-    var uniqueKey: String?
-    var firstName: String
-    var lastName: String
-    var mapString: String
-    var latitude: Float
-    var longitude: Float
-    var createdAt: Date?
-    var updatedAt: Date?
-    var mediaURL: String?
+    let firstName: String
+    let lastName: String
+    let mapString: String
+    let latitude: Float
+    let longitude: Float
+    let mediaURL: String?
+    let objectId: String?
+    let uniqueKey: String?
 }

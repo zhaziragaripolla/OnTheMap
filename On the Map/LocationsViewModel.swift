@@ -17,6 +17,10 @@ protocol SessionCompletionDelegate: class {
 //    func showError(message: String)
 }
 
+protocol LocationPostCompletionDelegate: class {
+    func postedSuccessfully()
+}
+
 
 protocol LocationsFetcherDelegate: class {
     func fetchedSuccessfully()
@@ -34,23 +38,22 @@ class LocationsViewModel {
             delegate?.reloadData()
         }
     }
-//    var user: User?
-    let networkManager = NetworkManager()
+    let udacityClient = UdacityClient()
+    let parseClient = ParseClient()
     let requestProvider = RequestProvider()
     
     weak var delegate: LocationsViewModelDelegate?
     weak var sessionDelegate: SessionCompletionDelegate?
     weak var errorDelegate: ErrorHandlerDelegate?
     weak var fetcherDelegate: LocationsFetcherDelegate?
+    weak var posterDelegate: LocationPostCompletionDelegate?
     
-    private init() {
-//        fetchLocations()
-//        getUserData()
-    }
+    private init() {}
     
-    func createSession() {
-        let request = requestProvider.createSession(login: "humabayeva97@gmail.com", password: "Tools003")
-        networkManager.makeRequest(request, responseType: UdacityResponse.self, isSkippingChars: true, callback: {[weak self] result in
+    public func createSession(email: String, password: String) {
+        // TODO: change email password
+        let request = requestProvider.createSession(login: "zhumabayeva97@gmail.com", password: "Tools003")
+        udacityClient.makeRequest(request, responseType: UdacityResponse.self, callback: {[weak self] result in
             switch result {
             case .success(let response):
                 Auth.accountKey = response.account.key
@@ -64,62 +67,63 @@ class LocationsViewModel {
         })
     }
     
-    func fetchLocations() {
+    public func fetchLocations() {
         let request = requestProvider.getStudentLocations()
-        networkManager.makeRequest(request, responseType: StudentsLocationsResponse.self, isSkippingChars: false) { [weak self] result in
+        parseClient.makeRequest(request, responseType: StudentsLocationsResponse.self) { [weak self] result in
             switch result {
             case .success(let response):
                 self?.locations = response.results
                 self?.fetcherDelegate?.fetchedSuccessfully()
             case .failure(let error):
-                print(error)
-                break
-                // TODO: delegate VC to show alert
+                self?.errorDelegate?.showError(message: error.localizedDescription)
             }
             
         }
     }
     
-    func getUserData() {
+    public func getUserData() {
         let request = requestProvider.getUserData()
 
-        networkManager.makeRequest(request, responseType: UserResponse.self, isSkippingChars: true) { result in
+        udacityClient.makeRequest(request, responseType: UserResponse.self) { [weak self] result in
             switch result {
             case .success(let response):
                 User.firstName = response.firstName
                 User.lastName = response.lastName
                 User.location = response.location
-                print(User.firstName, User.lastName, User.location)
             case .failure(let error):
-                
-                print("user unfetched", error)
-                break
-                // TODO: delegate VC to show alert
+                self?.errorDelegate?.showError(message: error.localizedDescription)
             }
             
         }
     }
     
-    func postNewLocation(location: String, mediaURL: String, latitude: Float, longitude: Float) {
-        var newLocation = StudentLocation(objectId: nil, uniqueKey: Auth.accountKey, firstName: User.firstName, lastName: User.lastName, mapString: location, latitude: latitude, longitude: longitude, createdAt: nil, updatedAt: nil, mediaURL: mediaURL)
-        let request = requestProvider.postStudentLocation(newLocation)
-
-        networkManager.makeRequest(request, responseType: PostStudentLocationResponse.self, isSkippingChars: false) { result in
+    func setNewLocation(location: String, mediaURL: String, latitude: Float, longitude: Float) {
+        
+        let newLocation = StudentLocation(firstName: User.firstName, lastName: User.lastName, mapString: location, latitude: latitude, longitude: longitude, mediaURL: mediaURL, objectId: nil, uniqueKey: mediaURL)
+        
+        if User.location != nil {
+            putLocation(location: newLocation)
+        }
+        else {
+            postNewLocation(location: newLocation)
+        }
+    }
+    
+    private func postNewLocation(location: StudentLocation) {
+     
+        let request = requestProvider.postStudentLocation(location)
+        parseClient.makeRequest(request, responseType: PostStudentLocationResponse.self) { [weak self] result in
             switch result {
-            case .success(let response):
-                newLocation.createdAt = response.createdAt
-                newLocation.objectId = response.objectId
-                User.location = newLocation
+            case .success:
+                User.location = location
             case .failure(let error):
-                print("New location posting is unsuccessfull", error)
-                break
-                // TODO: delegate VC to show alert
+                self?.errorDelegate?.showError(message: error.localizedDescription)
             }
             
         }
     }
     
-    func putLocation(location: String, mediaURL: String, latitude: Float, longtitude: Float) {
+    private func putLocation(location: StudentLocation) {
         
     }
     

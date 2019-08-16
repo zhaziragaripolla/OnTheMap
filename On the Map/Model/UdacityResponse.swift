@@ -22,20 +22,3 @@ struct Session: Codable {
     let id: String
     let expiration: Date
 }
-
-struct UdacityErrorResponse: Codable {
-    let statusCode: Int
-    let errorMessage: String
-    
-    enum CodingKeys: String, CodingKey {
-        case statusCode = "status"
-        case errorMessage = "error"
-    }
-}
-
-extension UdacityErrorResponse: LocalizedError {
-
-    var localizedDescription: String? {
-        return self.errorMessage
-    }
-}
