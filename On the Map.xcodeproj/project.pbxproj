@@ -39,13 +39,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		560DACCF2302E66E00DFD6AF /* StudentsLocationsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StudentsLocationsResponse.swift; path = ../StudentsLocationsResponse.swift; sourceTree = "<group>"; };
+		560DACCF2302E66E00DFD6AF /* StudentsLocationsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudentsLocationsResponse.swift; sourceTree = "<group>"; };
 		560DACDA2303238F00DFD6AF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = "On the Map/Base.lproj/Main.storyboard"; sourceTree = "<group>"; };
 		560DACDD230324B600DFD6AF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = "On the Map/Base.lproj/Launch Screen.storyboard"; sourceTree = "<group>"; };
 		560DACDF2303D1B400DFD6AF /* UdacityResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UdacityResponse.swift; sourceTree = "<group>"; };
 		560DACE12304263600DFD6AF /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
 		560DACE32304266500DFD6AF /* PinsListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinsListViewController.swift; sourceTree = "<group>"; };
-		560DACE523042BBA00DFD6AF /* LocationsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LocationsViewModel.swift; path = ../LocationsViewModel.swift; sourceTree = "<group>"; };
+		560DACE523042BBA00DFD6AF /* LocationsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationsViewModel.swift; sourceTree = "<group>"; };
 		560DACE723045BFD00DFD6AF /* PostLocationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostLocationViewController.swift; sourceTree = "<group>"; };
 		560DACEB230476B700DFD6AF /* UserResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserResponse.swift; sourceTree = "<group>"; };
 		560DACED2304782300DFD6AF /* Auth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Auth.swift; sourceTree = "<group>"; };
