@@ -10,7 +10,7 @@ import Foundation
 
 class ParseClient {
     
-    func makeRequest<T>(_ request: URLRequest, responseType: T.Type, callback: @escaping (Result<T>) -> ()) where T : Decodable, T : Encodable {
+    func makeRequest<T: Codable>(_ request: URLRequest, responseType: T.Type, callback: @escaping (Result<T>) -> ()){
         let dataTask = URLSession.shared.dataTask(with: request) {(data, response, error) in
             if let error = error {
                 callback(.failure(error: error))
@@ -18,6 +18,10 @@ class ParseClient {
             
             if let httpResponse = response as? HTTPURLResponse {
                 switch httpResponse.statusCode {
+                case 400...451:
+                    DispatchQueue.main.async {
+                        callback(.failure(error: NetworkError.clientError))
+                    }
                 case 500...511:
                     DispatchQueue.main.async {
                         callback(.failure(error: NetworkError.serverError))
@@ -37,7 +41,6 @@ class ParseClient {
             decoder.dateDecodingStrategy = .formatted(Formatter.iso8601)
             
             do {
-//                print(String(data: unwrappedData, encoding: .utf8))
                 let response = try decoder.decode(T.self, from: unwrappedData)
                 DispatchQueue.main.async {
                     callback(.success(response: response))
@@ -65,6 +68,4 @@ class ParseClient {
         
         dataTask.resume()
     }
-    
-    
 }

@@ -17,7 +17,8 @@ class PostLocationViewController: UIViewController {
     var locationTextField: UITextField = {
         let textField = UITextField()
         textField.font = UIFont.systemFont(ofSize: 16)
-        textField.text = "Astana"
+        textField.placeholder = "Enter a location"
+        textField.text = "New York"
         textField.layer.borderWidth = 1.0
         textField.layer.cornerRadius = 5
         return textField
@@ -26,7 +27,8 @@ class PostLocationViewController: UIViewController {
     lazy var linkTextField: UITextField = {
         let textField = UITextField()
         textField.font = UIFont.systemFont(ofSize: 16)
-        textField.text = "google.com"
+        textField.placeholder = "Enter a website"
+        textField.text = "https://google.com"
         textField.layer.borderWidth = 1.0
         textField.layer.cornerRadius = 5
         return textField
@@ -37,14 +39,14 @@ class PostLocationViewController: UIViewController {
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 12)
         button.setTitleColor(.black, for: .normal)
         button.setTitle("Find", for: .normal)
-        button.backgroundColor = .lightGray
+        button.backgroundColor = .lightBlue
         button.layer.cornerRadius = 5
         button.layer.borderWidth = 1
         button.layer.borderColor = UIColor.black.cgColor
         return button
     }()
     
-    var geocodoer = CLGeocoder()
+    let geocodoer = CLGeocoder()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -53,8 +55,8 @@ class PostLocationViewController: UIViewController {
     }
     
     fileprivate func setupView() {
-        view.backgroundColor = .lightBlue
-        //        self.tabBarController?.tabBar.isHidden = true
+        title = "New location"
+        view.backgroundColor = .white
         
         findButton.addTarget(self, action: #selector(didTapFindButton(_:)), for: .touchUpInside)
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(didTapCancelButton(_:)))
@@ -74,9 +76,8 @@ class PostLocationViewController: UIViewController {
             ])
     }
     
-    
+    // MARK: Find Button
     @objc func didTapFindButton(_ sender: UIButton) {
-        
         guard let location = locationTextField.text, let link = linkTextField.text else {
             let alertController = UIAlertController(title: "New location", message: "Please fill in new location or link", preferredStyle: .alert)
             alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
@@ -86,15 +87,14 @@ class PostLocationViewController: UIViewController {
         
         LoadingOverlay.shared.showOverlay(view: view)
         
-        findNewLocation(location) { success in
-            if success {
+        findNewLocation(location) { result in
+            if let newLocation = result?.location {
                 let vc = ConfirmLocationViewController()
-                vc.locationCoordinate = CLLocationCoordinate2D(latitude: self.latitude!, longitude: self.longtitude!)
+                vc.locationCoordinate = CLLocationCoordinate2D(latitude: newLocation.coordinate.latitude, longitude: newLocation.coordinate.longitude)
+                vc.locationName = result?.locality
                 vc.mediaUrl = link
-                vc.locationName = location
                 self.navigationController?.pushViewController(vc, animated: true)
             }
-            
         }
         
     }
@@ -103,41 +103,28 @@ class PostLocationViewController: UIViewController {
         dismiss(animated: true, completion: nil)
     }
     
-    func findNewLocation(_ location: String, completion: @escaping (Bool)->()) {
+    // helper to forward-geocode a location
+    private func findNewLocation(_ location: String, completion: @escaping (CLPlacemark?)->()) {
         
         geocodoer.geocodeAddressString(location, in: nil) { [weak self] placemarks, error in
-            if let foundLocation = placemarks?.first?.location {
-                self?.latitude = foundLocation.coordinate.latitude
-                self?.longtitude = foundLocation.coordinate.longitude
+            if let foundLocation = placemarks?.first{
                 DispatchQueue.main.async {
                     LoadingOverlay.shared.hideOverlayView()
-                    completion(true)
+                    completion(foundLocation)
                 }
             }
             
             if let error = error as? CLError {
-                
                 let errorType = error.errorCode == CLError.Code.geocodeFoundNoResult.rawValue ? "Not found" : "Error: \(error.code)"
-                
-                let alertController = UIAlertController(title: "New location", message: errorType, preferredStyle: .alert)
+                let alertController = UIAlertController(title: "Error", message: errorType, preferredStyle: .alert)
                 alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
                 self?.present(alertController, animated: true, completion: nil)
                 DispatchQueue.main.async {
                     LoadingOverlay.shared.hideOverlayView()
-                    completion(false)
+                    completion(nil)
                 }
             }
-            
         }
         
     }
-    
-//    func verifyUrl(_ link: String)-> Bool {
-//        if let url = URL(string: link) {
-//            return UIApplication.shared.canOpenURL(url)
-//        }
-//        return false
-//    }
-
-
 }

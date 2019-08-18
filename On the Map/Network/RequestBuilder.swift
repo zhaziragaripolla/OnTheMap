@@ -33,14 +33,16 @@ class RequestBuilder {
         }
         
         setQueryParameters(query, to: &url)
+        
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = method.map { $0.rawValue }
         setHeaders(headers, to: &urlRequest)
         setBodyParameters(body, to: &urlRequest)
+        
         return urlRequest
     }
     
-    func setHeaders(_ headers: HTTPHeaders?, to request: inout URLRequest) {
+    private func setHeaders(_ headers: HTTPHeaders?, to request: inout URLRequest) {
         guard let unwrappedHeaders = headers else { return }
         
         for (key, value) in unwrappedHeaders {
@@ -48,7 +50,7 @@ class RequestBuilder {
         }
     }
     
-    func setBodyParameters(_ parameters: HTTPBodyParameters?, to request: inout URLRequest) {
+    private func setBodyParameters(_ parameters: HTTPBodyParameters?, to request: inout URLRequest) {
         guard
             let unwrappedBodyParameters = parameters,
             let body = try? JSONSerialization.data(withJSONObject: unwrappedBodyParameters, options: .prettyPrinted)
@@ -56,18 +58,15 @@ class RequestBuilder {
                 return
         }
         request.httpBody = body
-
-//        print(String(data: request.httpBody!, encoding: .utf8))
     }
     
-    func setQueryParameters(_ parameters: HTTPQueryParameters?, to url: inout URL) {
+    private func setQueryParameters(_ parameters: HTTPQueryParameters?, to url: inout URL) {
         guard
             let unwrappedQueryParameters = parameters,
             var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
             else {
                 return
         }
-        
         
         urlComponents.queryItems = unwrappedQueryParameters.compactMap({ (value) -> URLQueryItem? in
             return URLQueryItem(name: value.key, value: value.value)

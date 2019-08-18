@@ -8,7 +8,7 @@
 
 import UIKit
 
-public class LoadingOverlay{
+public class LoadingOverlay {
     
     var overlayView = UIView()
     var activityIndicator = UIActivityIndicatorView()
@@ -37,6 +37,8 @@ public class LoadingOverlay{
         view.addSubview(overlayView)
 
         activityIndicator.startAnimating()
+        
+        
     }
 
     public func hideOverlayView() {

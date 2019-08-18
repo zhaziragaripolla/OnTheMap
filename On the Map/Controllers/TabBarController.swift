@@ -20,10 +20,12 @@ class TabBarController: UITabBarController {
     func setupTabs() {
        
         let mapVC = MapViewController()
-        mapVC.tabBarItem = UITabBarItem(tabBarSystemItem: .favorites, tag: 1)
+        mapVC.tabBarItem = UITabBarItem(title: "", image: UIImage(named: "icon-mapview"), tag: 1)
         
         let pinsVC = PinsListViewController()
         pinsVC.tabBarItem = UITabBarItem(tabBarSystemItem: .bookmarks, tag: 2)
+        pinsVC.tabBarItem = UITabBarItem(title: "", image: UIImage(named: "icon-listview"), tag: 2)
+        
         viewControllers = [mapVC, pinsVC].map { UINavigationController(rootViewController: $0) }
     }
 }

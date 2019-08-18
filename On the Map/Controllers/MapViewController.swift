@@ -9,15 +9,9 @@
 import UIKit
 import MapKit
 
-protocol MapViewControllerDelegate: class {
-    func updateExitingLocation()
-    func postNewLocation()
-}
-
-class MapViewController: UIViewController, MKMapViewDelegate {
+class MapViewController: UIViewController {
    
     let mapView = MKMapView(frame: .zero)
-    weak var delegate: MapViewControllerDelegate?
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -28,7 +22,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         super.viewDidLoad()
         
         view.backgroundColor = .white
-        LocationsViewModel.shared.delegate = self
+        LocationsViewModel.shared.taskDelegate = self
         
         setupMapView()
         setupBarItems()
@@ -60,9 +54,6 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         self.present(UINavigationController(rootViewController: PostLocationViewController()), animated: true)
     }
     
-    func updateExistingLocatoin () {
-        
-    }
     
     @objc func didTapLogoutButton(_ sender: UIBarButtonItem) {
         LocationsViewModel.shared.deleteSession()
@@ -85,7 +76,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
            
             let first = item.firstName
             let last = item.lastName
-            let mediaURL = item.mapString
+            let mediaURL = item.mediaURL
             let annotation = MKPointAnnotation()
             annotation.coordinate = coordinate
             annotation.title = "\(first) \(last)"
@@ -95,8 +86,11 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         }
 
         self.mapView.addAnnotations(annotations)
-        
     }
+
+}
+
+extension MapViewController: MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         
@@ -118,25 +112,20 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
         if control == view.rightCalloutAccessoryView {
-            let app = UIApplication.shared
-            if let toOpen = view.annotation?.subtitle! {
-                app.open(URL(string: toOpen)!, options: [:], completionHandler: nil)
+            if let toOpen = view.annotation?.subtitle!, let url = URL(string: toOpen) {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
             }
         }
     }
 }
 
-extension MapViewController: LocationsViewModelDelegate {
-    func reloadData() {
+extension MapViewController: NetworkTaskCompletionDelegate {
+    func taskCompleted() {
         setupPins()
     }
     
-//    func taskCompleted() {
-//        setupPins()
-//    }
-    
     func showError(message: String) {
-        let alertController = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        let alertController = UIAlertController(title: "Failed to show student locations", message: message, preferredStyle: .alert)
         let action = UIAlertAction(title: "OK", style: .cancel, handler: nil)
         alertController.addAction(action)
         self.present(alertController, animated: true, completion: nil)

@@ -14,14 +14,15 @@ class PinsListViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+    
         LocationsViewModel.shared.fetchLocations()
+        LoadingOverlay.shared.showOverlay(view: view)
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        LocationsViewModel.shared.delegate = self
+        LocationsViewModel.shared.taskDelegate = self
         
         view.backgroundColor = .white
         title = "Pins"
@@ -41,7 +42,7 @@ class PinsListViewController: UIViewController {
             ])
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView.register(PinTableViewCell.self, forCellReuseIdentifier: "cell")
     }
     
     fileprivate func setupBarItems() {
@@ -50,22 +51,22 @@ class PinsListViewController: UIViewController {
         let logoutItem = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(didTapLogoutButton(_:)))
         navigationItem.leftBarButtonItems = [logoutItem]
         navigationItem.rightBarButtonItems = [addItem, reloadItem]
-        self.tabBarController?.tabBar.isHidden = false
     }
     
     @objc func didTapAddButton(_ sender: UIBarButtonItem) {
-        navigationController?.pushViewController(PostLocationViewController(), animated: true)
+       self.present(UINavigationController(rootViewController: PostLocationViewController()), animated: true)
     }
     
     @objc func didTapReloadButton(_ sender: UIBarButtonItem) {
         LocationsViewModel.shared.fetchLocations()
+        LoadingOverlay.shared.showOverlay(view: view)
     }
     
+    // MARK: Logout Button
     @objc func didTapLogoutButton(_ sender: UIBarButtonItem) {
         LocationsViewModel.shared.deleteSession()
         dismiss(animated: true, completion: nil)
     }
-    
 
 }
 
@@ -75,27 +76,50 @@ extension PinsListViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! PinTableViewCell
         let location = LocationsViewModel.shared.locations[indexPath.row]
-        cell.textLabel?.text = "\(location.firstName.description) \(location.lastName.description)"
+        cell.titleLabel.text = "\(location.firstName.description) \(location.lastName.description)"
+        cell.detailLabel.text = location.mediaURL
+        cell.accessoryType = .disclosureIndicator
         return cell
+    }
+    
+    // MARK: Tap a row
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let location = LocationsViewModel.shared.locations[indexPath.row]
+        if location.mediaURL.isValidURL(){
+            UIApplication.shared.open(URL(string: location.mediaURL)!, options: [:], completionHandler: nil)
+        }
+        else {
+            let alertController = UIAlertController(title: "Invalid link", message: "Cannot open url.", preferredStyle: .alert)
+            let action = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+            alertController.addAction(action)
+            self.present(alertController, animated: true, completion: nil)
+        }
     }
 }
 
-extension PinsListViewController: LocationsViewModelDelegate {
-    func reloadData() {
+extension PinsListViewController: NetworkTaskCompletionDelegate {
+    func taskCompleted() {
+        LoadingOverlay.shared.hideOverlayView()
         tableView.reloadData()
     }
-
     
+//    func reloadData() {
+//        tableView.reloadData()
+//    }
+//
+//
     func showError(message: String) {
-        let alertController = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        LoadingOverlay.shared.hideOverlayView()
+        let alertController = UIAlertController(title: "Failed to show student locations", message: message, preferredStyle: .alert)
         let action = UIAlertAction(title: "OK", style: .cancel, handler: nil)
         alertController.addAction(action)
         self.present(alertController, animated: true, completion: nil)
     }
     
 }
+
 
 
 

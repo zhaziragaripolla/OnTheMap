@@ -12,10 +12,6 @@ protocol AuthenticationCompletionDelegate: class {
     func completed()
 }
 
-protocol LocationsViewModelDelegate: class {
-    func reloadData()
-}
-
 protocol NetworkTaskCompletionDelegate: class {
     func taskCompleted()
     func showError(message: String)
@@ -23,40 +19,39 @@ protocol NetworkTaskCompletionDelegate: class {
 
 class LocationsViewModel {
     
+    // Singleton class to retrieve data and handle network requests.
     static let shared = LocationsViewModel()
-    var locations: [StudentLocation] = [] {
-        didSet {
-            delegate?.reloadData()
-        }
-    }
+    
+    var locations: [StudentLocation] = []
     var existingStudentLocaton: StudentLocation?
     let udacityClient = UdacityClient()
     let parseClient = ParseClient()
     let requestProvider = RequestProvider()
     
-    weak var delegate: LocationsViewModelDelegate?
     weak var taskDelegate: NetworkTaskCompletionDelegate?
     weak var authenticationDelegate: AuthenticationCompletionDelegate?
     
     private init() {}
     
+    // MARK: Create a session
     public func createSession(email: String, password: String) {
-        // TODO: change email password
-        let request = requestProvider.createSession(login: "zhumabayeva97@gmail.com", password: "Tools003")
+    
+        let request = requestProvider.createSession(login: email, password: password)
         udacityClient.makeRequest(request, responseType: UdacityResponse.self, callback: {[weak self] result in
             switch result {
             case .success(let response):
                 Auth.accountKey = response.account.key
                 Auth.sessionId = response.session.id
                 self?.authenticationDelegate?.completed()
-//                self?.taskDelegate?.taskCompleted()
             case .failure(let error):
+                print(error.localizedDescription)
                 self?.taskDelegate?.showError(message: error.localizedDescription)
             }
             
         })
     }
     
+    // MARK: Fetch Student Locations
     public func fetchLocations() {
         let request = requestProvider.getStudentLocations()
         parseClient.makeRequest(request, responseType: StudentsLocationsResponse.self) { [weak self] result in
@@ -71,6 +66,7 @@ class LocationsViewModel {
         }
     }
     
+    // MARK: Public User Data
     public func getUserData() {
         let request = requestProvider.getUserData()
 
@@ -80,40 +76,40 @@ class LocationsViewModel {
                 User.firstName = response.firstName
                 User.lastName = response.lastName
                 self?.taskDelegate?.taskCompleted()
-                print("user\(response.firstName) \(response.lastName) fetched")
             case .failure(let error):
-                print("user unfetched")
                 self?.taskDelegate?.showError(message: error.localizedDescription)
             }
             
         }
     }
     
+    // Defines which method (PUT/POST) to call
     func setNewLocation(location: String, mediaURL: String, latitude: Float, longitude: Float) {
         
         let newLocationRequest = StudentLocationRequest(firstName: User.firstName, lastName: User.lastName, mapString: location, latitude: latitude, longitude: longitude, mediaURL: mediaURL, uniqueKey: mediaURL)
         
+        // Update existing location or post a new one
         existingStudentLocaton != nil ? putLocation() : postNewLocation(newLocationRequest)
         
     }
     
+    // MARK: Post new location
     private func postNewLocation(_ location: StudentLocationRequest) {
-     
+
         let request = requestProvider.postStudentLocation(location)
         parseClient.makeRequest(request, responseType: PostStudentLocationResponse.self) { [weak self] result in
             switch result {
             case .success(let response):
                 self?.existingStudentLocaton = StudentLocation(firstName: location.firstName, lastName: location.lastName, mapString: location.mapString, latitude: location.latitude, longitude: location.longitude, mediaURL: location.mediaURL, objectId: response.objectId, uniqueKey: location.uniqueKey)
                 self?.taskDelegate?.taskCompleted()
-                print("POST-success")
             case .failure(let error):
-                print("POST-failure")
                 self?.taskDelegate?.showError(message: error.localizedDescription)
             }
             
         }
     }
     
+    // MARK: Update location
     private func putLocation() {
         let request = requestProvider.putStudentLocation(existingStudentLocaton!)
         parseClient.makeRequest(request, responseType: PutStudentLocationResponse.self) { [weak self] result in
@@ -127,16 +123,15 @@ class LocationsViewModel {
         }
     }
     
-    
+    // MARK: Delete session
     func deleteSession() {
         let request = requestProvider.deleteSession()
-        udacityClient.makeRequest(request, responseType: Session.self, callback: { [weak self] result in
+        udacityClient.makeRequest(request, responseType: DeleteSessionResponse.self, callback: { result in
             switch result {
             case .success:
-                print("DELTEDD")
-//                self?.taskDelegate?.taskCompleted()
-            case .failure(let error): break
-//                self?.taskDelegate?.showError(message: error.localizedDescription)
+                print("Deleted")
+            case .failure(let error):
+                print("Not deleted", error.localizedDescription)
             }
         })
     }

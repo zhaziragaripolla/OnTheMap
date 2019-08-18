@@ -43,7 +43,7 @@ class LoginViewController: UIViewController {
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 12)
         button.setTitleColor(.black, for: .normal)
         button.setTitle("LOG IN", for: .normal)
-        button.backgroundColor = .gray
+        button.backgroundColor = .lightBlue
         button.layer.cornerRadius = 5
         button.layer.borderWidth = 1
         button.layer.borderColor = UIColor.black.cgColor
@@ -67,6 +67,7 @@ class LoginViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // Setups delegates of view model
         LocationsViewModel.shared.taskDelegate = self
         LocationsViewModel.shared.authenticationDelegate = self
         
@@ -75,11 +76,10 @@ class LoginViewController: UIViewController {
         loginButton.addTarget(self, action: #selector(didTapLoginButton(_:)), for: .touchUpInside)
         signUpButton.addTarget(self, action: #selector(didTapSignUpButton(_:)), for: .touchUpInside)
         layoutView()
-        
     }
 
+    // MARK: View constraints
     func layoutView() {
-    
         let signUpStackView = UIStackView(arrangedSubviews: [signUpLabel, signUpButton])
         signUpStackView.axis = .horizontal
         
@@ -98,23 +98,29 @@ class LoginViewController: UIViewController {
             ])
     }
     
+    //  MARK: Login Button
+    // Checks for empty textfields and creates a session
     @objc func didTapLoginButton(_ sender: UIButton) {
-        guard let email = loginTextField.text, let password = passwordTextField.text else {
-            let alertController = UIAlertController(title: "Logging in", message: "Please fill in login or password", preferredStyle: .alert)
-            alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-            self.present(alertController, animated: true, completion: nil)
-            return
-        }
-        LocationsViewModel.shared.createSession(email: email, password: password)
+//        guard !loginTextField.text!.isEmpty, !passwordTextField.text!.isEmpty else {
+//            let alertController = UIAlertController(title: "Logging in", message: "Please fill in login or password", preferredStyle: .alert)
+//            alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+//            self.present(alertController, animated: true, completion: nil)
+//            return
+//        }
+        // Create a session with user credentials
+        LocationsViewModel.shared.createSession(email: loginTextField.text!, password: passwordTextField.text!)
         LoadingOverlay.shared.showOverlay(view: view)
+        
     }
     
+    // MARK: Sign Up Button
     @objc func didTapSignUpButton(_ sender: UIButton) {
         UIApplication.shared.open(URL(string: "https://auth.udacity.com/sign-up")!, options: [:], completionHandler: nil)
     }
 }
 
 extension LoginViewController: NetworkTaskCompletionDelegate, AuthenticationCompletionDelegate {
+    // When authentication is completed, starts to retrieve user data
     func completed() {
         LocationsViewModel.shared.getUserData()
     }
@@ -135,8 +141,13 @@ extension LoginViewController: NetworkTaskCompletionDelegate, AuthenticationComp
 }
 
 extension LoginViewController: UITextFieldDelegate {
+    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
+    }
+    
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        textField.text = ""
     }
 }

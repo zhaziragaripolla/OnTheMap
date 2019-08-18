@@ -8,10 +8,8 @@
 
 import Foundation
 
-
 class UdacityClient {
     
-    let cookies: [HTTPCookie] = []
     func makeRequest<T: Codable>(_ request: URLRequest, responseType: T.Type, callback: @escaping (Result<T>) -> ()) {
         
         let dataTask = URLSession.shared.dataTask(with: request) { (data, response, error) in
@@ -20,9 +18,12 @@ class UdacityClient {
             }
             
             if let httpResponse = response as? HTTPURLResponse {
-                print(httpResponse.statusCode)
+              
                 switch httpResponse.statusCode {
-                
+                case 403:
+                    DispatchQueue.main.async {
+                        callback(.failure(error: NetworkError.clientError))
+                    }
                 case 500...511:
                     DispatchQueue.main.async {
                         callback(.failure(error: NetworkError.serverError))
@@ -31,6 +32,8 @@ class UdacityClient {
                 default:
                     break
                 }
+                
+                // Saving cookies
                 let fields = httpResponse.allHeaderFields
                 let cookies = HTTPCookie.cookies(withResponseHeaderFields: fields as! [String : String], for: (response?.url!)!)
                 HTTPCookieStorage.shared.setCookies(cookies, for: response?.url, mainDocumentURL: nil)
@@ -48,8 +51,6 @@ class UdacityClient {
             let cleanData = unwrappedData.subdata(in: 5..<unwrappedData.count)
             
             do {
-                //                print(String(data: unwrappedData, encoding: .utf8))
-                
                 let response = try decoder.decode(T.self, from: cleanData)
                 DispatchQueue.main.async {
                     callback(.success(response: response))
@@ -58,14 +59,14 @@ class UdacityClient {
                 
             } catch {
                 do {
-                    let errorResponse = try decoder.decode(UdacityErrorResponse.self, from: unwrappedData)
+                    let errorResponse = try decoder.decode(UdacityErrorResponse.self, from: cleanData)
                     
                     DispatchQueue.main.async {
                         print(errorResponse.errorMessage)
                         callback(.failure(error: errorResponse))
                     }
                 } catch {
-                    print(error.localizedDescription)
+
                     DispatchQueue.main.async {
                         callback(.failure(error: error))
                     }
