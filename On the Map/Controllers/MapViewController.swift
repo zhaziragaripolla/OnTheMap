@@ -16,13 +16,15 @@ class MapViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         LocationsViewModel.shared.fetchLocations()
+        LoadingOverlay.shared.showOverlay(view: view)
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = .white
-        LocationsViewModel.shared.taskDelegate = self
+        LocationsViewModel.shared.errorDelegate = self
+        LocationsViewModel.shared.reloadDelegate = self
         
         setupMapView()
         setupBarItems()
@@ -62,10 +64,11 @@ class MapViewController: UIViewController {
     
     @objc func didTapReloadButton(_ sender: UIBarButtonItem) {
         LocationsViewModel.shared.fetchLocations()
+        LoadingOverlay.shared.showOverlay(view: view)
     }
     
     
-    func setupPins() {
+    private func setupPins() {
         let locations = LocationsViewModel.shared.locations
         var annotations = [MKPointAnnotation]()
 
@@ -112,19 +115,21 @@ extension MapViewController: MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
         if control == view.rightCalloutAccessoryView {
-            if let toOpen = view.annotation?.subtitle!, let url = URL(string: toOpen) {
+            if let urlString = view.annotation?.subtitle!, let url = URL(string: urlString) {
                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
             }
         }
     }
 }
 
-extension MapViewController: NetworkTaskCompletionDelegate {
-    func taskCompleted() {
+extension MapViewController: UpdateDataDelegate, ErrorPresenterDelegate {
+    func reload() {
+        LoadingOverlay.shared.hideOverlayView()
         setupPins()
     }
     
     func showError(message: String) {
+        LoadingOverlay.shared.hideOverlayView()
         let alertController = UIAlertController(title: "Failed to show student locations", message: message, preferredStyle: .alert)
         let action = UIAlertAction(title: "OK", style: .cancel, handler: nil)
         alertController.addAction(action)

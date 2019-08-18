@@ -92,7 +92,6 @@
 				560DACE32304266500DFD6AF /* PinsListViewController.swift */,
 				560DACE723045BFD00DFD6AF /* PostLocationViewController.swift */,
 				560DACF62306BD0400DFD6AF /* ConfirmLocationViewController.swift */,
-				560DACF4230697B900DFD6AF /* LoadingOverlayView.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -138,6 +137,7 @@
 			isa = PBXGroup;
 			children = (
 				5641798D230938EA00C90624 /* PinTableViewCell.swift */,
+				560DACF4230697B900DFD6AF /* LoadingOverlayView.swift */,
 			);
 			path = "Custom View";
 			sourceTree = "<group>";

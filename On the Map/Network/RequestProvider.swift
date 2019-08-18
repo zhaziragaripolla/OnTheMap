@@ -69,19 +69,19 @@ class RequestProvider {
     }
     
     // MARK: Put student location
-    func putStudentLocation(_ location: StudentLocation)-> URLRequest {
+    func putStudentLocation(_ objectId: String, newLocation: StudentLocationRequest)-> URLRequest {
         
         let body: HTTPBodyParameters = [
-            "uniqueKey" : location.uniqueKey,
-            "firstName" : location.firstName,
-            "lastName" : location.lastName,
-            "mapString" : location.mapString,
-            "mediaURL" : location.mediaURL,
-            "latitude" : location.latitude,
-            "longitude" : location.longitude
+            "uniqueKey" : newLocation.uniqueKey,
+            "firstName" : newLocation.firstName,
+            "lastName" : newLocation.lastName,
+            "mapString" : newLocation.mapString,
+            "mediaURL" : newLocation.mediaURL,
+            "latitude" : newLocation.latitude,
+            "longitude" : newLocation.longitude
         ]
         
-        return requestBuilder.buildRequest(path: "/StudentLocation/\(location.objectId)", method: .PUT, headers: baseHeaders, body: body, query: nil)
+        return requestBuilder.buildRequest(path: "/StudentLocation/\(objectId)", method: .PUT, headers: baseHeaders, body: body, query: nil)
     }
 
 }

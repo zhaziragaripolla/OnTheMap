@@ -11,21 +11,21 @@ import UIKit
 class PinsListViewController: UIViewController {
   
     let tableView = UITableView(frame: .zero)
-
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-    
         LocationsViewModel.shared.fetchLocations()
-        LoadingOverlay.shared.showOverlay(view: view)
+        LoadingOverlay.shared.showOverlay(view: self.view)
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        LocationsViewModel.shared.taskDelegate = self
         
         view.backgroundColor = .white
         title = "Pins"
+
+        LocationsViewModel.shared.errorDelegate = self
+        LocationsViewModel.shared.reloadDelegate = self
         
         setupTableView()
         setupBarItems()
@@ -58,8 +58,8 @@ class PinsListViewController: UIViewController {
     }
     
     @objc func didTapReloadButton(_ sender: UIBarButtonItem) {
-        LocationsViewModel.shared.fetchLocations()
         LoadingOverlay.shared.showOverlay(view: view)
+        LocationsViewModel.shared.fetchLocations()
     }
     
     // MARK: Logout Button
@@ -87,7 +87,7 @@ extension PinsListViewController: UITableViewDelegate, UITableViewDataSource {
     // MARK: Tap a row
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let location = LocationsViewModel.shared.locations[indexPath.row]
-        if location.mediaURL.isValidURL(){
+        if location.mediaURL.isValidURL() {
             UIApplication.shared.open(URL(string: location.mediaURL)!, options: [:], completionHandler: nil)
         }
         else {
@@ -99,17 +99,13 @@ extension PinsListViewController: UITableViewDelegate, UITableViewDataSource {
     }
 }
 
-extension PinsListViewController: NetworkTaskCompletionDelegate {
-    func taskCompleted() {
-        LoadingOverlay.shared.hideOverlayView()
+extension PinsListViewController: UpdateDataDelegate, ErrorPresenterDelegate {
+    
+    func reload() {
         tableView.reloadData()
+        LoadingOverlay.shared.hideOverlayView()
     }
     
-//    func reloadData() {
-//        tableView.reloadData()
-//    }
-//
-//
     func showError(message: String) {
         LoadingOverlay.shared.hideOverlayView()
         let alertController = UIAlertController(title: "Failed to show student locations", message: message, preferredStyle: .alert)

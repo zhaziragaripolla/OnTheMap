@@ -31,7 +31,9 @@ class ConfirmLocationViewController: UIViewController {
         
         title = "Add location"
         view.backgroundColor = .white
+    
         LocationsViewModel.shared.taskDelegate = self
+        LocationsViewModel.shared.errorDelegate = self
         
         finishButton.addTarget(self, action: #selector(didTapFinishButton(_:)), for: .touchUpInside)
         
@@ -61,19 +63,23 @@ class ConfirmLocationViewController: UIViewController {
         
     }
     
+    // MARK: Show a pin
     private func showOnTheMap() {
         let annotation = MKPointAnnotation()
         annotation.coordinate = locationCoordinate
+        annotation.title = locationName
         annotation.subtitle = mediaUrl
         mapView.addAnnotation(annotation)
-        
         let viewRegion = MKCoordinateRegion(center: locationCoordinate, latitudinalMeters: 10_000, longitudinalMeters: 10_000)
         mapView.setRegion(viewRegion, animated: false)
     }
     
     
+    // MARK: Finish Button
     @objc func didTapFinishButton(_ sender: UIButton) {
         LoadingOverlay.shared.showOverlay(view: view)
+        
+        // Sends location data to view model for posting
         LocationsViewModel.shared.setNewLocation(location: locationName, mediaURL: mediaUrl, latitude: Float(locationCoordinate.latitude), longitude: Float(locationCoordinate.longitude))
     }
     
@@ -89,9 +95,17 @@ extension ConfirmLocationViewController: MKMapViewDelegate {
         pinView.annotation = annotation
         return pinView
     }
+    
+    func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
+        if control == view.rightCalloutAccessoryView {
+            if let urlString = view.annotation?.subtitle!, let url = URL(string: urlString) {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
+        }
+    }
 }
 
-extension ConfirmLocationViewController: NetworkTaskCompletionDelegate{
+extension ConfirmLocationViewController: NetworkTaskCompletionDelegate, ErrorPresenterDelegate{
     func taskCompleted() {
         LoadingOverlay.shared.hideOverlayView()
         dismiss(animated: true, completion: nil)

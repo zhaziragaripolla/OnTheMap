@@ -51,13 +51,15 @@ class PostLocationViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        title = "New location"
+        
         setupView()
     }
     
     fileprivate func setupView() {
-        title = "New location"
         view.backgroundColor = .white
         
+        // Configuring buttons
         findButton.addTarget(self, action: #selector(didTapFindButton(_:)), for: .touchUpInside)
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(didTapCancelButton(_:)))
         
@@ -72,7 +74,7 @@ class PostLocationViewController: UIViewController {
             stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             stackView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.6),
-            stackView.heightAnchor.constraint(equalToConstant: 90)
+            stackView.heightAnchor.constraint(equalToConstant: 120)
             ])
     }
     
@@ -105,7 +107,6 @@ class PostLocationViewController: UIViewController {
     
     // helper to forward-geocode a location
     private func findNewLocation(_ location: String, completion: @escaping (CLPlacemark?)->()) {
-        
         geocodoer.geocodeAddressString(location, in: nil) { [weak self] placemarks, error in
             if let foundLocation = placemarks?.first{
                 DispatchQueue.main.async {
@@ -125,6 +126,6 @@ class PostLocationViewController: UIViewController {
                 }
             }
         }
-        
     }
+    
 }

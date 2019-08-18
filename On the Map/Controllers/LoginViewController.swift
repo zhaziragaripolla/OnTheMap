@@ -94,19 +94,19 @@ class LoginViewController: UIViewController {
             stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             stackView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.6),
-            stackView.heightAnchor.constraint(equalToConstant: 150)
+            stackView.heightAnchor.constraint(equalToConstant: 180)
             ])
     }
     
     //  MARK: Login Button
     // Checks for empty textfields and creates a session
     @objc func didTapLoginButton(_ sender: UIButton) {
-//        guard !loginTextField.text!.isEmpty, !passwordTextField.text!.isEmpty else {
-//            let alertController = UIAlertController(title: "Logging in", message: "Please fill in login or password", preferredStyle: .alert)
-//            alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-//            self.present(alertController, animated: true, completion: nil)
-//            return
-//        }
+        guard !loginTextField.text!.isEmpty, !passwordTextField.text!.isEmpty else {
+            let alertController = UIAlertController(title: "Logging in", message: "Please fill your login or password", preferredStyle: .alert)
+            alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+            self.present(alertController, animated: true, completion: nil)
+            return
+        }
         // Create a session with user credentials
         LocationsViewModel.shared.createSession(email: loginTextField.text!, password: passwordTextField.text!)
         LoadingOverlay.shared.showOverlay(view: view)
@@ -119,9 +119,9 @@ class LoginViewController: UIViewController {
     }
 }
 
-extension LoginViewController: NetworkTaskCompletionDelegate, AuthenticationCompletionDelegate {
+extension LoginViewController: NetworkTaskCompletionDelegate, AuthenticationCompletionDelegate, ErrorPresenterDelegate {
     // When authentication is completed, starts to retrieve user data
-    func completed() {
+    func authenticated() {
         LocationsViewModel.shared.getUserData()
     }
     

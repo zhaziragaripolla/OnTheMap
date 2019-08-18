@@ -40,7 +40,10 @@ class UdacityClient {
             }
             
             guard var unwrappedData = data else {
-                callback(.failure(error: NetworkError.dataMissed))
+                DispatchQueue.main.async {
+                    callback(.failure(error: NetworkError.dataMissed))
+                }
+                
                 return
             }
             
@@ -54,7 +57,6 @@ class UdacityClient {
                 let response = try decoder.decode(T.self, from: cleanData)
                 DispatchQueue.main.async {
                     callback(.success(response: response))
-                    
                 }
                 
             } catch {
@@ -62,7 +64,6 @@ class UdacityClient {
                     let errorResponse = try decoder.decode(UdacityErrorResponse.self, from: cleanData)
                     
                     DispatchQueue.main.async {
-                        print(errorResponse.errorMessage)
                         callback(.failure(error: errorResponse))
                     }
                 } catch {

@@ -32,7 +32,9 @@ class ParseClient {
             }
             
             guard let unwrappedData = data else {
-                callback(.failure(error: NetworkError.dataMissed))
+                DispatchQueue.main.async {
+                    callback(.failure(error: NetworkError.dataMissed))
+                }
                 return
             }
             
@@ -56,7 +58,6 @@ class ParseClient {
                         callback(.failure(error: errorResponse))
                     }
                 } catch {
-                    print(error.localizedDescription)
                     DispatchQueue.main.async {
                         callback(.failure(error: error))
                     }
