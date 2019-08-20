@@ -56,8 +56,8 @@ class LocationsViewModel {
                 Auth.accountKey = response.account.key
                 Auth.sessionId = response.session.id
                 self?.authenticationDelegate?.authenticated()
-            case .failure(let error):
-                self?.errorDelegate?.showError(message: error.localizedDescription)
+            case .failure:
+                self?.errorDelegate?.showError(message: "Incorrect username or password.")
             }
             
         })

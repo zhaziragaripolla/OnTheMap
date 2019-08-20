@@ -38,26 +38,26 @@ class PinTableViewCell: UITableViewCell {
         NSLayoutConstraint.activate([
             pinImageView.widthAnchor.constraint(equalToConstant: 20),
             pinImageView.heightAnchor.constraint(equalToConstant: 30),
-            pinImageView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 15),
-            pinImageView.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 15)
+            pinImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 15),
+            pinImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 15)
             ])
         
         contentView.addSubview(titleLabel)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            titleLabel.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -10),
-            titleLabel.leadingAnchor.constraint(equalTo: self.pinImageView.trailingAnchor, constant: 15),
-            titleLabel.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 10),
+            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            titleLabel.leadingAnchor.constraint(equalTo: pinImageView.trailingAnchor, constant: 15),
+            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
             titleLabel.heightAnchor.constraint(equalToConstant: 20)
             ])
         
         contentView.addSubview(detailLabel)
         detailLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            detailLabel.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -10),
-            detailLabel.leadingAnchor.constraint(equalTo: self.pinImageView.trailingAnchor, constant: 15),
-            detailLabel.topAnchor.constraint(equalTo: self.titleLabel.bottomAnchor, constant: 15),
-            detailLabel.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor, constant: -10)
+            detailLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            detailLabel.leadingAnchor.constraint(equalTo: pinImageView.trailingAnchor, constant: 15),
+            detailLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 15),
+            detailLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10)
             ])
     }
     

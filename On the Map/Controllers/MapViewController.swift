@@ -49,11 +49,11 @@ class MapViewController: UIViewController {
         let logoutItem = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(didTapLogoutButton(_:)))
         navigationItem.leftBarButtonItems = [logoutItem]
         navigationItem.rightBarButtonItems = [addItem, reloadItem]
-        self.tabBarController?.tabBar.isHidden = false
+        tabBarController?.tabBar.isHidden = false
     }
     
     @objc func didTapAddButton(_ sender: UIBarButtonItem) {
-        self.present(UINavigationController(rootViewController: PostLocationViewController()), animated: true)
+        present(UINavigationController(rootViewController: PostLocationViewController()), animated: true)
     }
     
     
@@ -84,11 +84,10 @@ class MapViewController: UIViewController {
             annotation.coordinate = coordinate
             annotation.title = "\(first) \(last)"
             annotation.subtitle = mediaURL
-
             annotations.append(annotation)
         }
 
-        self.mapView.addAnnotations(annotations)
+        mapView.addAnnotations(annotations)
     }
 
 }
@@ -133,7 +132,7 @@ extension MapViewController: UpdateDataDelegate, ErrorPresenterDelegate {
         let alertController = UIAlertController(title: "Failed to show student locations", message: message, preferredStyle: .alert)
         let action = UIAlertAction(title: "OK", style: .cancel, handler: nil)
         alertController.addAction(action)
-        self.present(alertController, animated: true, completion: nil)
+        present(alertController, animated: true, completion: nil)
     }
     
 }

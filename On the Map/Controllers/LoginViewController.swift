@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Reachability
 
 class LoginViewController: UIViewController {
     
@@ -52,6 +53,8 @@ class LoginViewController: UIViewController {
     
     lazy var signUpLabel: UILabel = {
         let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 12)
+        label.lineBreakMode = .byWordWrapping
         label.text = "Don't have an account?"
         label.textAlignment = .center
         return label
@@ -61,25 +64,45 @@ class LoginViewController: UIViewController {
         let button = UIButton()
         button.setTitleColor(.lightBlue, for: .normal)
         button.setTitle("Sign Up", for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 12)
         return button
     }()
+    
+    let reachability = Reachability()!
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        NotificationCenter.default.addObserver(self, selector: #selector(reachabilityChanged(note:)), name: .reachabilityChanged, object: reachability)
+        do{
+            try reachability.startNotifier()
+        }catch{
+            print("could not start reachability notifier")
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // Setups delegates of view model
-        LocationsViewModel.shared.taskDelegate = self
         LocationsViewModel.shared.authenticationDelegate = self
+        LocationsViewModel.shared.taskDelegate = self
+        LocationsViewModel.shared.errorDelegate = self
         
         view.backgroundColor = .white
         
         loginButton.addTarget(self, action: #selector(didTapLoginButton(_:)), for: .touchUpInside)
         signUpButton.addTarget(self, action: #selector(didTapSignUpButton(_:)), for: .touchUpInside)
+        
         layoutView()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        reachability.stopNotifier()
+        NotificationCenter.default.removeObserver(self, name: .reachabilityChanged, object: reachability)
     }
 
     // MARK: View constraints
-    func layoutView() {
+    private func layoutView() {
         let signUpStackView = UIStackView(arrangedSubviews: [signUpLabel, signUpButton])
         signUpStackView.axis = .horizontal
         
@@ -98,19 +121,34 @@ class LoginViewController: UIViewController {
             ])
     }
     
+    // MARK: Network connection is changed
+    @objc func reachabilityChanged(note: Notification) {
+        
+        let reachability = note.object as! Reachability
+        
+        switch reachability.connection {
+        case .wifi:
+            print("Reachable via WiFi")
+        case .cellular:
+            print("Reachable via Cellular")
+        case .none:
+            showError(message: "No internet connection")
+        }
+    }
+    
     //  MARK: Login Button
     // Checks for empty textfields and creates a session
     @objc func didTapLoginButton(_ sender: UIButton) {
+        
         guard !loginTextField.text!.isEmpty, !passwordTextField.text!.isEmpty else {
-            let alertController = UIAlertController(title: "Logging in", message: "Please fill your login or password", preferredStyle: .alert)
-            alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-            self.present(alertController, animated: true, completion: nil)
+            showError(message: "Please fill your email or password")
             return
         }
+        
         // Create a session with user credentials
         LocationsViewModel.shared.createSession(email: loginTextField.text!, password: passwordTextField.text!)
         LoadingOverlay.shared.showOverlay(view: view)
-        
+    
     }
     
     // MARK: Sign Up Button
@@ -120,6 +158,18 @@ class LoginViewController: UIViewController {
 }
 
 extension LoginViewController: NetworkTaskCompletionDelegate, AuthenticationCompletionDelegate, ErrorPresenterDelegate {
+
+    func showError(message: String) {
+        LoadingOverlay.shared.hideOverlayView()
+        
+       
+        let alertController = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        let action = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+        alertController.addAction(action)
+        present(alertController, animated: true, completion: nil)
+    }
+
+    
     // When authentication is completed, starts to retrieve user data
     func authenticated() {
         LocationsViewModel.shared.getUserData()
@@ -129,15 +179,6 @@ extension LoginViewController: NetworkTaskCompletionDelegate, AuthenticationComp
         LoadingOverlay.shared.hideOverlayView()
         present(TabBarController(), animated: true)
     }
-    
-    func showError(message: String) {
-        LoadingOverlay.shared.hideOverlayView()
-        let alertController = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
-        let action = UIAlertAction(title: "OK", style: .cancel, handler: nil)
-        alertController.addAction(action)
-        self.present(alertController, animated: true, completion: nil)
-    }
-    
 }
 
 extension LoginViewController: UITextFieldDelegate {

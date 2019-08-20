@@ -35,12 +35,17 @@ public class LoadingOverlay {
 
         overlayView.addSubview(activityIndicator)
         view.addSubview(overlayView)
+        DispatchQueue.main.async {
+            self.activityIndicator.startAnimating()
+        }
         
-        activityIndicator.startAnimating()
     }
 
     public func hideOverlayView() {
-        activityIndicator.stopAnimating()
+        DispatchQueue.main.async {
+             self.activityIndicator.stopAnimating()
+        }
+       
         overlayView.removeFromSuperview()
     }
 }

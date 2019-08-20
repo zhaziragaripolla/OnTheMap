@@ -54,7 +54,7 @@ class PinsListViewController: UIViewController {
     }
     
     @objc func didTapAddButton(_ sender: UIBarButtonItem) {
-       self.present(UINavigationController(rootViewController: PostLocationViewController()), animated: true)
+       present(UINavigationController(rootViewController: PostLocationViewController()), animated: true)
     }
     
     @objc func didTapReloadButton(_ sender: UIBarButtonItem) {
@@ -94,7 +94,7 @@ extension PinsListViewController: UITableViewDelegate, UITableViewDataSource {
             let alertController = UIAlertController(title: "Invalid link", message: "Cannot open url.", preferredStyle: .alert)
             let action = UIAlertAction(title: "OK", style: .cancel, handler: nil)
             alertController.addAction(action)
-            self.present(alertController, animated: true, completion: nil)
+            present(alertController, animated: true, completion: nil)
         }
     }
 }
@@ -111,7 +111,7 @@ extension PinsListViewController: UpdateDataDelegate, ErrorPresenterDelegate {
         let alertController = UIAlertController(title: "Failed to show student locations", message: message, preferredStyle: .alert)
         let action = UIAlertAction(title: "OK", style: .cancel, handler: nil)
         alertController.addAction(action)
-        self.present(alertController, animated: true, completion: nil)
+        present(alertController, animated: true, completion: nil)
     }
     
 }

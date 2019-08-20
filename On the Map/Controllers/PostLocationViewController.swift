@@ -83,19 +83,19 @@ class PostLocationViewController: UIViewController {
         guard let location = locationTextField.text, let link = linkTextField.text else {
             let alertController = UIAlertController(title: "New location", message: "Please fill in new location or link", preferredStyle: .alert)
             alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-            self.present(alertController, animated: true, completion: nil)
+            present(alertController, animated: true, completion: nil)
             return
         }
         
         LoadingOverlay.shared.showOverlay(view: view)
         
-        findNewLocation(location) { result in
+        findNewLocation(location) { [weak self] result in
             if let newLocation = result?.location {
                 let vc = ConfirmLocationViewController()
                 vc.locationCoordinate = CLLocationCoordinate2D(latitude: newLocation.coordinate.latitude, longitude: newLocation.coordinate.longitude)
                 vc.locationName = result?.locality
                 vc.mediaUrl = link
-                self.navigationController?.pushViewController(vc, animated: true)
+                self?.navigationController?.pushViewController(vc, animated: true)
             }
         }
         
