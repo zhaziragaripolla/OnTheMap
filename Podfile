@@ -7,5 +7,7 @@ target 'On the Map' do
 
   # Pods for On the Map
   pod 'ReachabilitySwift'
+  pod 'FBSDKLoginKit'
+    
 
 end

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import FBSDKLoginKit
 
 protocol AuthenticationCompletionDelegate: class {
     func authenticated()
@@ -39,6 +40,8 @@ class LocationsViewModel {
     let udacityClient = UdacityClient()
     let parseClient = ParseClient()
     let requestProvider = RequestProvider()
+    let loginManager = LoginManager()
+    var isFacebookLogin: Bool = false
     
     weak var taskDelegate: NetworkTaskCompletionDelegate?
     weak var authenticationDelegate: AuthenticationCompletionDelegate?
@@ -133,14 +136,21 @@ class LocationsViewModel {
     
     // MARK: Delete session
     public func deleteSession() {
-        let request = requestProvider.deleteSession()
-        udacityClient.makeRequest(request, responseType: DeleteSessionResponse.self, callback: { result in
-            switch result {
-            case .success:
-                print("Deleted")
-            case .failure(let error):
-                print("Not deleted", error.localizedDescription)
-            }
-        })
+        if !isFacebookLogin {
+            let request = requestProvider.deleteSession()
+            udacityClient.makeRequest(request, responseType: DeleteSessionResponse.self, callback: { result in
+                switch result {
+                case .success:
+                    print("Deleted")
+                case .failure(let error):
+                    print("Not deleted", error.localizedDescription)
+                }
+            })
+        }
+        else {
+            loginManager.logOut()
+            isFacebookLogin = !isFacebookLogin
+        }
+        
     }
 }
