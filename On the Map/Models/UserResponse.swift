@@ -9,8 +9,8 @@
 import Foundation
 
 struct User {
-    static var firstName = ""
-    static var lastName = ""
+    static var firstName = "Joe"
+    static var lastName = "Doe"
 }
 
 struct UserResponse: Codable {

@@ -54,6 +54,7 @@ class UdacityClient {
             let cleanData = unwrappedData.subdata(in: 5..<unwrappedData.count)
             
             do {
+                print(String(data: cleanData, encoding: .utf8))
                 let response = try decoder.decode(T.self, from: cleanData)
                 DispatchQueue.main.async {
                     callback(.success(response: response))

@@ -41,7 +41,9 @@ class LocationsViewModel {
     let parseClient = ParseClient()
     let requestProvider = RequestProvider()
     let loginManager = LoginManager()
-    var isFacebookLogin: Bool = false
+    var isFacebookLogin: Bool = {
+        return AccessToken.isCurrentAccessTokenActive
+    }()
     
     weak var taskDelegate: NetworkTaskCompletionDelegate?
     weak var authenticationDelegate: AuthenticationCompletionDelegate?
@@ -83,6 +85,7 @@ class LocationsViewModel {
     // MARK: Public User Data
     public func getUserData() {
         let request = requestProvider.getUserData()
+        print(request.url)
         udacityClient.makeRequest(request, responseType: UserResponse.self) { [weak self] result in
             switch result {
             case .success(let response):

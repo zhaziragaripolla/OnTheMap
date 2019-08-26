@@ -101,6 +101,14 @@ class LoginViewController: UIViewController {
         
         setupButtons()
         layoutView()
+        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if LocationsViewModel.shared.isFacebookLogin {
+            present(TabBarController(), animated: false)
+        }
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -209,17 +217,14 @@ extension LoginViewController: LoginButtonDelegate {
     }
     
     func loginButton(_ loginButton: FBLoginButton, didCompleteWith result: LoginManagerLoginResult?, error: Error?) {
-        if let error = error {
-            showError(message: error.localizedDescription)
-        }
-
-        
-        if let accessToken = AccessToken.current {
-            // User is logged in
-            print(accessToken)
+        guard let error = error else {
             LocationsViewModel.shared.isFacebookLogin = true
             present(TabBarController(), animated: true)
+            return
         }
+        
+        showError(message: error.localizedDescription)
+        
     }
     
 }

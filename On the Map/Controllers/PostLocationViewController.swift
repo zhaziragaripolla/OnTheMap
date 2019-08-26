@@ -14,6 +14,14 @@ class PostLocationViewController: UIViewController {
     var latitude: CLLocationDegrees?
     var longtitude: CLLocationDegrees?
     
+    lazy var logoImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = UIImage(named: "icon_world")
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+    
+    
     var locationTextField: UITextField = {
         let textField = UITextField()
         textField.font = UIFont.systemFont(ofSize: 16)
@@ -46,6 +54,8 @@ class PostLocationViewController: UIViewController {
         return button
     }()
     
+    
+    
     let geocodoer = CLGeocoder()
     
     override func viewDidLoad() {
@@ -63,7 +73,7 @@ class PostLocationViewController: UIViewController {
         findButton.addTarget(self, action: #selector(didTapFindButton(_:)), for: .touchUpInside)
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(didTapCancelButton(_:)))
         
-        let stackView = UIStackView(arrangedSubviews: [locationTextField, linkTextField, findButton])
+        let stackView = UIStackView(arrangedSubviews: [logoImageView, locationTextField, linkTextField, findButton])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.distribution = .fillEqually
         stackView.axis = .vertical
@@ -74,7 +84,7 @@ class PostLocationViewController: UIViewController {
             stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             stackView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.6),
-            stackView.heightAnchor.constraint(equalToConstant: 120)
+            stackView.heightAnchor.constraint(equalToConstant: 160)
             ])
     }
     
