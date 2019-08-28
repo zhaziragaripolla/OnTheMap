@@ -8,5 +8,6 @@ This project is a part of Udacity Nanodegree program. The specification could be
 - 
 
 ## Screenshots
-![alt text](https://github.com/zhaziragaripolla/images/blob/master/1.png "Logo Title Text 1")
+![alt text](https://github.com/zhaziragaripolla/images/blob/master/Simulator%20Screen%20Shot%20-%20iPhone%20X%20-%202019-08-28%20at%2018.56.01.png)
+
 
